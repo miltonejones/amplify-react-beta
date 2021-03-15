@@ -14,3 +14,11 @@ export function generateKey(Title) {
   }
   return Title.replace(/[\.\s-\/]/g, '').toLowerCase().trim().replace('the', '');
 }
+
+export function randomize(collection) {
+  return collection.map(f => {
+    return { f, b: Math.random() * collection.length };
+  })
+    .sort((a, b) => a.b > b.b ? 1 : -1).map(f => f.f);
+}
+

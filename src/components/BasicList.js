@@ -1,9 +1,8 @@
 import React from 'react';
-import axios from 'axios';
 import Thumbnail from './thumbnail/Thumbnail';
-import { ARTIST_API_ADDRESS } from '../Constants';
 import clsx from 'clsx';
 import { AppState, generateKey } from '../util/State';
+import { query } from '../AmplifyData';
 
 
 export default class ArtistList extends React.Component {
@@ -26,7 +25,7 @@ export default class ArtistList extends React.Component {
     }
   }
   loadComponentList() {
-    axios.get(ARTIST_API_ADDRESS + this.getType())
+    query(this.getType())
       .then(res => {
         const artists = res.data;
         artists.map(f => f.listKey = generateKey(f.Title));

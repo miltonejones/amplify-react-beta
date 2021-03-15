@@ -64,7 +64,7 @@ export const fullGrid = (color = '#ffffff', width = 400) => {
       ctx.stroke();
     }
     ctx.font = "12px 'Shadows Into Light'";
-    ctx.fillStyle = 'rebeccapurple';
+    ctx.fillStyle = '#3f51b5';
     ctx.fillText('Amplify!', canvas.width - 48, canvas.height - 4);
   }
   return `url(${canvas.toDataURL()})`;

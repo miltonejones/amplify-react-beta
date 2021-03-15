@@ -1,0 +1,39 @@
+.banner-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+.banner-container .banner {
+  width: 30%;
+  padding: 0 2px;
+  height: 90px;
+  border-radius: 5px;
+  margin: 5px;
+  background-size: cover;
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  text-shadow: 1px 1px 2px #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: antiquewhite;
+}
+.banner-container .banner .material-icons {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: none;
+  color: var(--accent-text-color);
+}
+.banner-container .banner.long {
+  font-size: 1.7rem;
+  white-space: normal;
+}
+.banner-container .banner.loading {
+  border: solid 2px red;
+}
+.banner-container .banner.active .material-icons {
+  display: inline-block;
+}

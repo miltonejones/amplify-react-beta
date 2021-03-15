@@ -1,12 +1,12 @@
 
 import React from 'react';
-import axios from 'axios';
-import { ARTIST_API_ADDRESS } from '../Constants';
 import { DataGrid } from '@material-ui/data-grid';
 import { listViewOnClick$, listViewMenuClick$ } from "../util/Events";
 import clsx from 'clsx';
 import { AppState, generateKey } from '../util/State';
 import Icon from '@material-ui/core/Icon';
+import { query, send } from '../AmplifyData';
+import { ARTIST_API_ADDRESS } from '../Constants';
 
 const columns = [
   { field: 'trackNumber', headerName: '#', width: 24 },
@@ -77,8 +77,7 @@ export default class TrackListView extends React.Component {
 
 
   getTrackListByKeys(playlist, Keys) {
-    const address = ARTIST_API_ADDRESS + 'tune';
-    axios.post(address, { Keys })
+    send('tune', { Keys })
       .then(res => {
         console.log({ res })
         const related = this.organize(playlist, res.data);
@@ -88,8 +87,7 @@ export default class TrackListView extends React.Component {
   }
 
   getPlaylist() {
-    const address = ARTIST_API_ADDRESS + this.getType();
-    axios.get(address)
+    query(this.getType())
       .then(res => {
         // console.log(res, this.props)
         const playlist = res.data?.filter(d => generateKey(d.Title) === this.props.id)[0];
@@ -118,12 +116,16 @@ export default class TrackListView extends React.Component {
   }
 
   loadComponentList() {
-    if (this.getType() === 'playlist') {
+    const type = this.getType();
+    if (type === 'playlist') {
       return this.getPlaylist();
     }
-    const address = this.getUriLocation();
-    console.log(address)
-    axios.get(address)
+    // const address = this.getUriLocation();
+    const promise = type === 'library'
+      ? query('tune')
+      : query('tune', this.props.id);
+    // console.log(address)
+    promise
       .then(res => {
         this.setObjects(res.data.related || res.data);
       });

@@ -143,6 +143,7 @@ function App() {
           <Route path="/show/:type/:id" children={<DisplayListView open={open} />} />
           <Route path="/show/:type" children={<DisplayListView open={open} />} />
           <Route path="/main/:type" children={<DashPage open={open} />} />
+          <Route path="/" children={<DashPage open={open} />} />
         </Switch>
 
 

@@ -40,9 +40,30 @@ img.toolbar-logo {
   width: 40px;
   margin: 7px;
 }
+
+.carousel-cell-recent {
+  position: relative;
+}
+
+.carousel-cell-recent .carousel-cell-text {
+  position: absolute;
+  bottom: 0;
+}
+
+.carousel-cell-recent img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+
+.amplify-card-header {
+  font-size: 20px;
+  margin: 0 0;
 }
 
 .MuiDataGrid-root {
@@ -87,7 +108,7 @@ img.toolbar-logo {
 .dash-page-paper {
   padding: 20px;
   color: #333;
-  margin: 0 0;
+  margin: 4px 0 0 0;
 }
 
 .thumbnail-view.collapsed {
