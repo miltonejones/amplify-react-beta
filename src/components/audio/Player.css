@@ -1,0 +1,106 @@
+.audio-player-visible-controls {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.audio-player-visible-controls .play-state-controls,
+.audio-player-visible-controls .player-progress {
+  /* outline: dotted 1px blue; */
+  max-width: 400px;
+  min-width: 120px;
+  float: left;
+}
+
+.audio-player-visible-controls .play-state-photo {
+  width: 80px;
+}
+
+.audio-player-visible-controls .play-state-photo img {
+  width: 70px;
+  height: 70px;
+  margin: 5px 0 0 10px;
+  transition: border-radius 0.2s;
+  border: solid 1px var(--dark-window-color);
+}
+
+.audio-player-visible-controls .play-state-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.audio-player-visible-controls .player-progress {
+  width: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.player-track-menu {
+  /* outline: solid 1px rebeccapurple; */
+  float: right;
+  margin: 8px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-outer-label {
+  /* border: dotted 1px gray; */
+  box-shadow: 1px 1px 5px #444;
+  width: 320px;
+  height: 20px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  cursor: text;
+}
+
+.progress-inner-label {
+  /* outline: dotted 1px red; */
+  white-space: nowrap;
+  font-size: 0.8rem;
+  mix-blend-mode: exclusion;
+  color: white;
+  width: fit-content;
+  padding: 2px 4px;
+}
+
+.progress-inner-label.ellipsed {
+  width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.eq-outer-label {
+  width: 400px;
+  height: 40px;
+  border: solid 1px #ddd;
+  /* box-shadow: 1px 1px 3px #444; */
+  display: flex;
+  gap: 1px;
+  position: relative;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.player-equalizer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.eq-outer-label .grid-mask {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 400px;
+  height: 40px;
+  padding: 4px;
+  transition: width 0.4s ease-in;
+}
+
+button {
+  margin: 0 0 !important;
+}

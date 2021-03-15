@@ -1,0 +1,92 @@
+.carousel-cell {
+  margin: 0 2px;
+  height: var(--carousel-max-height);
+  /* outline: dotted 2px red; */
+}
+.carousel-cell img {
+  object-fit: cover;
+  max-height: var(--carousel-max-height);
+  min-height: var(--carousel-max-height);
+  border-radius: 3px;
+}
+.carousel-cell .material-icons {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  /* display: none; */
+}
+.carousel-cell .carousel-cell-text {
+  position: absolute;
+  bottom: 10px;
+  left: 8px;
+  line-height: var(--carousel-line-height);
+}
+.carousel-cell .carousel-cell-text .carousel-cell-title {
+  font-size: var(--carousel-title-font);
+  font-weight: 600;
+  color: antiquewhite;
+  mix-blend-mode: exclusion;
+}
+.carousel-cell .carousel-cell-text .carousel-cell-artist {
+  color: var(--line-item-active-color);
+  font-size: var(--carousel-caption-font);
+  text-shadow: 1px 1px 2px #444;
+}
+.carousel-cell.loading {
+  border: solid 2px red;
+}
+.carousel-cell.loading .material-icons.spinning-icon {
+  display: inline-block;
+}
+.carousel-cell.active .material-icons.volume-up {
+  display: inline-block;
+}
+/* .material-icons.nav-text {
+  display: none;
+} */
+.owl-carousel {
+  position: relative;
+}
+.owl-carousel .owl-nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+.owl-carousel .owl-nav .owl-next,
+.owl-carousel .owl-nav .owl-prev {
+  position: absolute;
+  top: 100px;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  background-color: hsla(0, 0%, 78.8%, 0.3);
+}
+.owl-carousel .owl-nav .owl-prev {
+  left: -12px;
+}
+
+.owl-carousel .owl-nav .owl-next {
+  right: -12px;
+}
+
+.owl-carousel .owl-nav button.owl-prev,
+.owl-carousel .owl-nav button.owl-next,
+.owl-carousel button.owl-dot {
+  background-color: hsla(0, 0%, 78.8%, 0.3);
+}
+
+.owl-carousel .owl-nav .owl-next .material-icons,
+.owl-carousel .owl-nav .owl-prev .material-icons {
+  margin: 10px 0;
+}
+
+.material-icons:hover {
+  color: var(--accent-text-color);
+}
+.material-icons {
+  vertical-align: middle;
+  cursor: pointer;
+}

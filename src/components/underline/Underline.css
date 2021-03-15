@@ -1,0 +1,31 @@
+strong {
+  position: relative;
+  font-weight: 700;
+  font-size: 1.4rem;
+  font-family: "Shadows Into Light", "Dancing Script", "Yusei Magic";
+  color: var(--toolbar-text-color);
+}
+strong.dark {
+  color: var(--workspace-text-color);
+}
+strong::after {
+  content: "";
+  position: absolute;
+  bottom: -0.325rem;
+  left: -0.5rem;
+  right: -0.5rem;
+  height: 0.75rem;
+  z-index: 4;
+  background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/664131/underline.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+p > strong {
+  font-weight: 600;
+}
+p > strong::after {
+  bottom: -0.2rem;
+  height: 0.5rem;
+  left: -0.25rem;
+  right: -0.25rem;
+}
