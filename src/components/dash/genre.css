@@ -12,7 +12,7 @@
   grid-template-rows: 20px 20px 1fr;
   grid-template-columns: 80px 1fr;
   grid-template-areas: "photo title" "photo artist" "photo album";
-  margin: 0;
+  margin: 8px 0;
   padding: 0;
 }
 .empty-song-list .genre-song-item .genre-song-item-photo,

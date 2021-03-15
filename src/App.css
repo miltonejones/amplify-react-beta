@@ -30,15 +30,25 @@ body.light {
   --carousel-line-height: 20px;
   --carousel-max-height: 240px;
 }
-
+.nav-list-icon {
+  min-width: 36px !important;
+}
 .App {
   /* text-align: center; */
   height: 100vh;
-  /* overflow: hidden; */
+  overflow: hidden;
+}
+.App.home {
+  overflow: scroll;
+  outline: solid 1px rebeccapurple;
 }
 img.toolbar-logo {
   width: 40px;
   margin: 7px;
+}
+
+.disabled-icon {
+  color: #888;
 }
 
 .carousel-cell-recent {
@@ -51,8 +61,8 @@ img.toolbar-logo {
 }
 
 .carousel-cell-recent img {
-  width: 200px;
-  height: 200px;
+  width: 180px !important;
+  height: 180px !important;
   border-radius: 50%;
 }
 
@@ -86,18 +96,31 @@ img.toolbar-logo {
 .list-view,
 .thumbnail-view {
   width: 96vw;
-  height: calc(100vh - 72px);
+  height: calc(100vh - 128px);
   float: left;
   grid-gap: 1em;
-  margin-top: 72px;
+  margin-top: 0;
   margin-left: 26px;
   transition: width 0.4s;
   overflow: scroll;
 }
+.playlist-add-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+.no-wrap {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.amplify-main-workspace {
+  margin-top: 72px;
+}
 
 .thumbnail-view.collapsed,
 .list-view.collapsed {
-  height: calc(100vh - 160px);
+  height: calc(100vh - 200px);
   /* outline: dotted 4px red; */
 }
 
@@ -145,6 +168,24 @@ img.toolbar-logo {
   line-height: 1;
   font-size: 0.7rem;
   color: #667;
+}
+
+.home-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 16px;
+}
+
+.home-link-list .home-link-list-item a {
+  color: var(--main-link-color);
+}
+.home-link-list .home-link-list-item {
+  width: 50%;
+  padding: 4px 0;
+}
+.material-icons {
+  vertical-align: middle;
+  margin: 0 4px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -195,4 +236,17 @@ img.toolbar-logo {
   to {
     transform: rotateZ(360deg);
   }
+}
+
+.standard-button {
+  cursor: pointer;
+}
+.standard-button:hover {
+  color: #37a;
+  box-shadow: 1px 1px 4px #777;
+}
+.standard-button:active {
+  color: #37a;
+  border: 1px dotted grey;
+  box-shadow: none;
 }

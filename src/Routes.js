@@ -22,6 +22,7 @@ export const appRoutes = [
       label: 'Library',
       icon: 'music_note',
       prefix: '/show/',
+      home: true,
       cover: ['Library.html', 'cover']
     }
   },
@@ -45,6 +46,7 @@ export const appRoutes = [
       label: 'Artists',
       icon: 'people',
       prefix: '/list/',
+      home: true,
       cover: ['Artist_cover.html', 'cover']
     }
   },
@@ -76,6 +78,7 @@ export const appRoutes = [
       label: 'Albums',
       icon: 'album',
       prefix: '/list/',
+      home: true,
       cover: ['Album_cover.html', 'cover']
     }
   },
@@ -131,6 +134,7 @@ export const appRoutes = [
       label: 'Playlists',
       icon: 'playlist_add_check',
       prefix: '/list/',
+      home: true,
       cover: ['Playlist_cover.html', 'cover']
     }
   },

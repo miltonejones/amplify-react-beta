@@ -1,7 +1,6 @@
 import React from 'react';
 import { CLOUD_FRONT_URL, DEFAULT_IMAGE } from "../../Constants";
-import clsx from 'clsx';
-import { listViewOnClick } from "../../util/Events";
+import { listViewOnClick, playBegin$ } from "../../util/Events";
 import { Analyser } from "./AudioAnalyser";
 import ProgressLabel from "./ProgressLabel";
 import './Player.css';
@@ -9,6 +8,10 @@ import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import EqLabel from './EqLabel';
 import Badge from '@material-ui/core/Badge';
+import { SongPersistService } from './Persist';
+import QueueDialog from '../modal/QueueModal';
+import { compareTrackToLists } from '../../AmplifyData';
+import PlaylistAddDialog from '../modal/PlaylistAddModal';
 
 export default class AudioPlayer extends React.Component {
   cacheType = '';
@@ -20,9 +23,9 @@ export default class AudioPlayer extends React.Component {
     };
   }
 
-  next() {
-    const index = this.state.index + 1;
-    if (index < this.state.items?.length) {
+  next(i = 1) {
+    const index = this.state.index + i;
+    if (index < this.state.items?.length && index > -1) {
       return this.state.items[index];
     }
   }
@@ -32,8 +35,13 @@ export default class AudioPlayer extends React.Component {
     if (track?.Title) { return track }
   }
 
+  prev() {
+    const track = this.next(-1);
+    if (track?.Title) { return track }
+  }
+
   attach(audioElement) {
-    audioElement.addEventListener('ended', () => this.stopTrack());
+    audioElement.addEventListener('ended', () => this.nextTrack());
     audioElement.addEventListener('loadeddata', () => this.loadTrack(audioElement));
     audioElement.addEventListener('timeupdate', () => this.setProgress(audioElement));
     this.setState({
@@ -46,11 +54,18 @@ export default class AudioPlayer extends React.Component {
   }
 
   loadTrack(e) {
-
+    const index = this.state.items?.indexOf(this.state.track);
+    const first = index === 0;
+    const last = (index + 1) === this.state.items?.length;
+    const count = compareTrackToLists(this.state.track);
+    // console.log({ index, first, last })
+    this.setState({
+      ...this.state,
+      first, last, count
+    });
   }
 
-  stopTrack() {
-    const track = this.fwd();
+  playTrack(track) {
     if (track) {
       const text = track.FileKey;
       const url = play(text);
@@ -64,6 +79,41 @@ export default class AudioPlayer extends React.Component {
       setTimeout(() => this.updateList(), 999);
       return;
     }
+    this.close();
+  }
+
+  close() {
+    const items = null;
+    this.setState({
+      ...this.state,
+      items
+    })
+    this.state.audioElement.pause();
+    this.props.notify(false);
+  }
+
+  prevTrack() {
+    const track = this.prev();
+    this.playTrack(track)
+  }
+
+  nextTrack() {
+    const track = this.fwd();
+    this.playTrack(track)
+  }
+
+  setQueue(opts) {
+    const text = opts.track?.FileKey;
+    const url = play(text);
+    this.setState({
+      ...this.state,
+      ...opts,
+      url
+    });
+    this.props.notify(true);
+    SongPersistService.add(opts.track);
+    playBegin$.next(this.state)
+    setTimeout(() => this.updateList(), 999);
   }
 
   setProgress(player) {
@@ -77,31 +127,20 @@ export default class AudioPlayer extends React.Component {
   }
 
   updateList() { // HACK
-    const nodes = document.querySelectorAll('.Mui-selected');
+    // const nodes = document.querySelectorAll('.Mui-selected');
     const rows = document.querySelectorAll('.MuiDataGrid-row');
     const id = this.state.track?.ID;
-    console.log({ rows, id });
+    // console.log({ rows, id });
     Array.from(rows).map(row => {
       const key = row.getAttribute('data-id');
-      if (key == id) {
+      if (key.toString() === id.toString()) {
         row.classList.add('Mui-selected')
       } else {
         row.classList.remove('Mui-selected')
       }
+      return false;
     });
     // Array.from(nodes).map(node => node.classList.remove('Mui-selected'));
-  }
-
-  setQueue(opts) {
-    const text = opts.track?.FileKey;
-    const url = play(text);
-    this.setState({
-      ...this.state,
-      ...opts,
-      url
-    });
-    this.props.notify(true);
-    setTimeout(() => this.updateList(), 999);
   }
 
   componentWillUnmount() {
@@ -126,9 +165,18 @@ export default class AudioPlayer extends React.Component {
     this.attach(audio);
   }
   render() {
-    const datums = [this.state.track?.Title, this.state.track?.artistName, this.state.track?.albumName].filter(f => !!f).join(' - ');
-    const image = this.state.track?.albumImage || DEFAULT_IMAGE;
-    const player$ = this.state.audioElement;
+    const {
+      first,
+      last,
+      track,
+      audioElement,
+      progress,
+      items,
+      count,
+      url } = this.state;
+    const datums = [track?.Title, track?.artistName, track?.albumName].filter(f => !!f).join(' - ');
+    const image = track?.albumImage || DEFAULT_IMAGE;
+    const player$ = audioElement;
     const seek = (e) => player$.currentTime = player$.duration * e;
     return (
 
@@ -137,31 +185,31 @@ export default class AudioPlayer extends React.Component {
         <div className="audio-player-visible-controls">
           <div className="play-state-photo">
             <img onClick={this.handleImageClick.bind(this)} src={image} alt={datums}
-              className={clsx({
-                ['spinning-cd']: !this.state.audioElement?.paused,
-              })} />
+              className={audioElement?.paused ? '' : 'spinning-cd'} />
           </div>
           <div className="play-state-controls">
-            {/* controls [{this.state.audioElement?.paused}] */}
+            {/* controls [{audioElement?.paused}] */}
 
-            <IconButton
+            <IconButton onClick={this.prevTrack.bind(this)}
               edge="start"
               color="inherit"
+              disabled={first}
               aria-label="open drawer" >
               <Icon>fast_rewind</Icon>
             </IconButton>
 
-            <IconButton
+            <IconButton onClick={this.nextTrack.bind(this)}
               edge="start"
               color="inherit"
+              disabled={last}
               aria-label="open drawer" >
               <Icon>fast_forward</Icon>
             </IconButton>
 
           </div>
           <div className="player-progress">
-            <ProgressLabel seek={seek} value={this.state.progress} state={this.state.audioElement?.paused ? 1 : 2} text={datums} />
-            {/* <LinearProgress variant="determinate" value={this.state.progress} /> */}
+            <ProgressLabel seek={seek} value={progress} state={audioElement?.paused ? 1 : 2} text={datums} />
+            {/* <LinearProgress variant="determinate" value={progress} /> */}
           </div>
 
 
@@ -171,16 +219,29 @@ export default class AudioPlayer extends React.Component {
 
           <div className="player-track-menu">
 
-            <IconButton
+            {/* <IconButton
               edge="start"
               color="inherit"
               aria-label="open drawer" >
               <Icon>playlist_add</Icon>
-            </IconButton>
+            </IconButton> */}
 
-            <Badge color="secondary" badgeContent={this.state.items?.length}>
-              <Icon>queue_music</Icon>
-            </Badge>
+
+            {/* <Badge color="secondary" badgeContent={count}>
+              <Icon>playlist_add</Icon>
+            </Badge> */}
+
+            <PlaylistAddDialog count={count} track={track} />
+            <QueueDialog items={items} />
+
+
+
+            <IconButton onClick={this.close.bind(this)}
+              edge="start"
+              color="inherit"
+              aria-label="open drawer" >
+              <Icon>close</Icon>
+            </IconButton>
 
             {/* <IconButton
               edge="start"
@@ -195,7 +256,7 @@ export default class AudioPlayer extends React.Component {
 
 
 
-        <audio id="page-audio-player" autoPlay={true} src={this.state.url} crossOrigin="anonymous">
+        <audio id="page-audio-player" autoPlay={true} src={url} crossOrigin="anonymous">
           <source type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>

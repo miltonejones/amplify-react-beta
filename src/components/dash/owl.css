@@ -57,12 +57,20 @@
 .owl-carousel .owl-nav .owl-next,
 .owl-carousel .owl-nav .owl-prev {
   position: absolute;
-  top: 100px;
   border-radius: 50%;
   width: 42px;
   height: 42px;
   padding: 0;
   background-color: hsla(0, 0%, 78.8%, 0.3);
+}
+
+.artist-carousel-body .owl-carousel .owl-nav .owl-next,
+.artist-carousel-body .owl-carousel .owl-nav .owl-prev {
+  top: 100px;
+}
+.recent-carousel-body .owl-carousel .owl-nav .owl-next,
+.recent-carousel-body .owl-carousel .owl-nav .owl-prev {
+  top: 62px;
 }
 .owl-carousel .owl-nav .owl-prev {
   left: -12px;

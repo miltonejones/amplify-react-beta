@@ -2,12 +2,13 @@
 import React from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListSubheader from '@material-ui/core/ListSubheader';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, Icon, ListItemAvatar } from '@material-ui/core';
+import { query } from '../../AmplifyData';
+import { listViewOnClick$ } from '../../util/Events';
+import { sortObjects } from '../../util/State';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,15 +24,33 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontSize: '20px',
     margin: 0,
-    // outline: 'dotted 2px orange'
+  },
+  label: {
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden'
   }
 }));
 
+
+
 export default function ArtistVertical(props) {
-  const { objects, field, icon } = props;
+  const { objects, field, icon, type } = props;
   const classes = useStyles();
   const artists = objects?.result || [];
   const label = objects?.label || '';
+
+  const loadVertical = (id) => () => {
+    query(type, id).then(res => {
+      const data = res.data;
+      console.log(data.related)
+      const items = sortObjects(data.related, type);
+      const index = 0;
+      const track = items[index];
+      console.log({ items, track, index });
+      listViewOnClick$.next({ items, track, index });
+    })
+  }
   // console.log({ artists })
   return (
     <div className={classes.root}>
@@ -43,11 +62,11 @@ export default function ArtistVertical(props) {
             ? artist.Name
             : `${i + 1}. ${artist.Name}`
           return (
-            <ListItem key={artist.ID} classes={{ gutters: classes.gutter }} style={{ margin: 0, padding: '0 8px' }}>
+            <ListItem onClick={loadVertical(artist.ID)} key={artist.ID} classes={{ gutters: classes.gutter, multiline: classes.multiline, root: 'standard-button' }} style={{ margin: 0, padding: '0 8px' }}>
               {i === 0 && (<ListItemAvatar>
                 <Avatar alt={artist.Name} src={artist[field]} />
               </ListItemAvatar>)}
-              <ListItemText key={artist.ID} secondary={props.footer(artist)} primary={label} />
+              <ListItemText classes={{ primary: classes.label, secondary: classes.label }} key={artist.ID} secondary={props.footer(artist)} primary={label} />
             </ListItem>
           )
         })}

@@ -41,7 +41,7 @@ export default class ProgressLabel extends React.Component {
   }
 
   reset() {
-    const scroller = document.querySelector('.progress-inner-label')
+    // const scroller = document.querySelector('.progress-inner-label')
     if (this.Animation) {
       this.Animation.pause();
     }

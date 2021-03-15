@@ -60,15 +60,6 @@ const TrackMenu = (props) => {
       {nodes.map(node => {
         return (
           <ListItemLink icon={node.icon} key={node.label} secondary={node.footer} primary={node.label} to={node.path} />
-
-          // <ListItem onClick={node.click.bind(this)}>
-          //   <ListItemAvatar>
-          //     <Avatar>
-          //       <Icon>{node.icon}</Icon>
-          //     </Avatar>
-          //   </ListItemAvatar>
-          //   <ListItemText primary={node.label} secondary={node.footer} />
-          // </ListItem>
         )
       })}
     </List>

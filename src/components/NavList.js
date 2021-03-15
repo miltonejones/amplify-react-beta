@@ -17,6 +17,9 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
   },
+  icon: {
+    maxWidth: '32px'
+  }
 }));
 
 function ListItemLink(props) {
@@ -43,7 +46,7 @@ function ListItemLink(props) {
   );
   return (
     <ListItem button component={CustomLink}>
-      <ListItemIcon>
+      <ListItemIcon classes={{ root: 'nav-list-icon' }}>
         <Icon>{icon}</Icon>
       </ListItemIcon>
       <ListItemText primary={primary} />
@@ -57,7 +60,7 @@ export default function NavList() {
   const routes = appRoutes.filter(route => route.data?.icon);
   return (
     <div className={classes.root}>
-      <List component="nav" aria-label="main mailbox folders"
+      <List dense component="nav" aria-label="main mailbox folders"
         subheader={
           <ListSubheader component="div" id="nested-list-subheader">
             Browse

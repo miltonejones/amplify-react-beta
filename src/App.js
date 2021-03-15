@@ -15,7 +15,8 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  useParams
+  useParams,
+  Link
 } from "react-router-dom";
 import ArtistList from './components/BasicList';
 import TrackListView from "./components/BasicView";
@@ -27,6 +28,7 @@ import { AppState } from "./util/State";
 import { TrackMenu } from './components/TrackMenu';
 import DashPage from './components/DashPage';
 import { APP_NAME } from './Constants';
+import PageBreadcrumbs from './components/Breadcrumb';
 
 // const drawerWidth = 240;
 
@@ -45,15 +47,11 @@ function DisplayListView(props) {
 
 function App() {
   const [open, setOpen] = React.useState(false);
+  const [home, setHome] = React.useState(false);
   const [playing, setPlaying] = React.useState(AppState.PLAYING);
   const [menu, setMenu] = React.useState({});
 
   const classes = useStyles();
-
-
-  // const handleMenuOpen = () => {
-  //   setMenu(!menu);
-  // }
 
   const handleDrawerOpen = () => {
     if (open) {
@@ -69,6 +67,11 @@ function App() {
     setMenu({});
   };
 
+  const handleSetHome = (arg) => {
+    console.log({ arg })
+    setHome(arg)
+  }
+
   const setPlayState = (playingNow) => {
     console.log({ playingNow })
     AppState.PLAYING = playingNow;
@@ -77,9 +80,8 @@ function App() {
 
   listViewMenuClick.subscribe(setMenu);
   AppState.LOADED = true;
-
   return (
-    <div className="App">
+    <div className={['App', home ? 'home' : ''].join(' ')}>
 
       <Router>
 
@@ -99,10 +101,14 @@ function App() {
             >
               <Icon>menu</Icon>
             </IconButton>
-            <img className="toolbar-logo" alt={APP_NAME} src="http://ullify.com/assets/notify.png" />
-            <Underline innerText="Amplify!" />
+            <Link to="/">
+              <img className="toolbar-logo" alt={APP_NAME} src="http://ullify.com/assets/notify.png" />
+              <Underline innerText="Amplify!" />
+            </Link>
+
 
             <div className={classes.search}>
+
               <div className={classes.searchIcon}>
                 <Icon>search</Icon>
               </div>
@@ -115,6 +121,7 @@ function App() {
                 inputProps={{ 'aria-label': 'search' }}
               />
             </div>
+
 
           </Toolbar>
         </AppBar>
@@ -136,15 +143,17 @@ function App() {
 
         </Drawer>
 
+        <div class="amplify-main-workspace">
+          {/* workspace */}
+          <Switch>
+            <Route path="/list/:type" children={<DisplayThumbView open={open} />} />
+            <Route path="/show/:type/:id" children={<DisplayListView open={open} />} />
+            <Route path="/show/:type" children={<DisplayListView open={open} />} />
+            <Route path="/main/:type" children={<DashPage setHome={handleSetHome} open={open} />} />
+            <Route path="/" children={<DashPage setHome={handleSetHome} open={open} />} />
+          </Switch>
+        </div>
 
-        {/* workspace */}
-        <Switch>
-          <Route path="/list/:type" children={<DisplayThumbView open={open} />} />
-          <Route path="/show/:type/:id" children={<DisplayListView open={open} />} />
-          <Route path="/show/:type" children={<DisplayListView open={open} />} />
-          <Route path="/main/:type" children={<DashPage open={open} />} />
-          <Route path="/" children={<DashPage open={open} />} />
-        </Switch>
 
 
         <Drawer variant="temporary" onClick={handleOops} anchor="bottom" open={!!menu.ID}>

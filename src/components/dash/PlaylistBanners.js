@@ -1,5 +1,6 @@
 import React from 'react';
-import { query } from '../../AmplifyData';
+import { getPlaylist, query } from '../../AmplifyData';
+import { listViewOnClick$ } from '../../util/Events';
 import { generateKey } from '../../util/State';
 import './banner.css';
 
@@ -14,6 +15,15 @@ export default class PlaylistBanners extends React.Component {
     };
   }
 
+  getPlaylist(data) {
+    return () => getPlaylist(data).then(items => {
+      const index = 0;
+      const track = items[index];
+      console.log({ items, track, index });
+      listViewOnClick$.next({ items, track, index });
+    })
+  }
+
   componentDidUpdate() {
   }
   loadComponentList() {
@@ -21,7 +31,6 @@ export default class PlaylistBanners extends React.Component {
       .then(res => {
         const objects = res.data.filter(f => !!f.image).slice(0, 6);
         objects.map(f => f.listKey = generateKey(f.Title));
-        console.log(objects)
         this.setState({ objects });
       });
   }
@@ -31,7 +40,7 @@ export default class PlaylistBanners extends React.Component {
   render() {
     return (
       <div className="banner-container">
-        {this.state.objects.map(i => <div key={i.Title} className="banner" style={{ backgroundImage: 'url(' + i.image + ')' }}>
+        {this.state.objects.map(i => <div onClick={this.getPlaylist.bind(this)(i.listKey)} key={i.Title} className="banner standard-button" style={{ backgroundImage: 'url(' + i.image + ')' }}>
           {i.Title}
           <div className="material-icons">
             volume_up

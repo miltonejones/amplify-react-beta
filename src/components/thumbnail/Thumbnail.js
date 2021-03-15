@@ -13,7 +13,7 @@ export default function Thumbnail(props) {
       <img src={image} alt={title} />
     </Link>
     <Caption text={title} />
-    <div className="caption-footer-line">{footer}[{props.artist.listKey}]
+    <div className="caption-footer-line">{footer}
     </div>
   </div>;
 }
