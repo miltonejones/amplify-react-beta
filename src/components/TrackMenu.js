@@ -6,6 +6,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Link } from 'react-router-dom';
+import PlaylistAddDialog from './modal/PlaylistAddModal';
 
 function ListItemLink(props) {
   const { icon, primary, secondary, to } = props;

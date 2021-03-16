@@ -10,6 +10,7 @@ import Icon from '@material-ui/core/Icon';
 import { NavLink } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
+import { ListItemSecondaryAction } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,13 +24,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ListItemLink(props) {
-  const { icon, primary, to, prefix } = props;
+  const { icon, primary, to, prefix, count, bold } = props;
 
   const isActive = (match, location) => {
     if (!location) {
       return false;
     }
-    return location.pathname.indexOf(to) > -1;
+    return location.pathname.indexOf(to) > -1 && !bold;
   };
 
   const CustomLink = React.useMemo(
@@ -50,6 +51,9 @@ function ListItemLink(props) {
         <Icon>{icon}</Icon>
       </ListItemIcon>
       <ListItemText primary={primary} />
+      {count && <ListItemSecondaryAction>
+        {count}
+      </ListItemSecondaryAction>}
     </ListItem>
   );
 }
@@ -81,3 +85,6 @@ export default function NavList() {
   );
 }
 
+export {
+  ListItemLink
+}

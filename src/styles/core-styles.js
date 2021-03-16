@@ -50,7 +50,7 @@ export const useStyles = makeStyles((theme) => ({
     marginLeft: drawerWidth,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: '0.2s', //theme.transitions.duration.enteringScreen,
     }),
   },
   inputRoot: {

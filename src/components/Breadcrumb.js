@@ -27,8 +27,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   root: {
-    // border: 'dotted 2px rebeccapurple',
     margin: '4px 20px'
+  },
+  open: {
+    margin: '4px 20px 4px 256px'
   },
   icon: {
     marginRight: theme.spacing(0.5),
@@ -41,10 +43,10 @@ const useStyles = makeStyles((theme) => ({
 
 const PageBreadcrumbs = (props) => {
   const classes = useStyles();
-  const { crumb } = props;
+  const { crumb, open } = props;
   console.log({ crumb })
   return (
-    <Breadcrumbs aria-label="breadcrumb" classes={{ root: classes.root }}>
+    <Breadcrumbs aria-label="breadcrumb" classes={{ root: open ? classes.open : classes.root }}>
       <Link color="inherit" to="/" className={classes.link}>
         <HomeIcon className={classes.icon} />
         Home

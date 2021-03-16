@@ -23,13 +23,11 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
   },
   outer: {
-    // border: 'solid 2px orange',
     height: '320px',
     width: '680px',
     padding: '8px'
   },
   root: {
-    // border: 'dotted 2px orange',
     height: '300px',
     width: '660px',
   }
@@ -41,11 +39,11 @@ const columns = [
   { field: 'albumName', headerName: 'Album', width: 180 }
 ];
 
-
 export default function PlaylistAddDialog(props) {
   const classes = useStyles();
-  const { count, track } = props;
+  const { count, track, component } = props;
   const [open, setOpen] = React.useState(false);
+  const [group, setGroup] = React.useState(PLAYLIST_COLLECTION);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -56,17 +54,21 @@ export default function PlaylistAddDialog(props) {
   };
 
   const handleCheck = (event) => {
-    console.log(event.target.value);
-    addToPlaylistByKey(event.target.value, track)
+    const listKey = event.target.value;
+    addToPlaylistByKey(listKey, track).then(() => {
+      console.log({ PLAYLIST_COLLECTION })
+      setGroup(PLAYLIST_COLLECTION)
+    });
   }
-
   return (
-    <div>
-
-      <Badge onClick={handleClickOpen} color="secondary" badgeContent={count}>
-        <Icon>playlist_add</Icon>
-      </Badge>
-
+    <div style={{ display: 'inline-block' }}>
+      <span onClick={handleClickOpen}>
+        {
+          component || <Badge color="secondary" badgeContent={count}>
+            <Icon>playlist_add</Icon>
+          </Badge>
+        }
+      </span>
       <Dialog
         open={open}
         maxWidth="xl"
@@ -78,7 +80,7 @@ export default function PlaylistAddDialog(props) {
         <DialogContent classes={{ root: classes.outer }}>
           <div class="playlist-add-grid">
             {
-              PLAYLIST_COLLECTION && PLAYLIST_COLLECTION.map && PLAYLIST_COLLECTION.map((c, i) =>
+              group && group.map && group.map((c, i) =>
                 <div class="playlist-add-item no-wrap" key={i}><FormControlLabel
                   control={
                     <Switch

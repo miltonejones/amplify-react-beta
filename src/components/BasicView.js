@@ -7,6 +7,8 @@ import Icon from '@material-ui/core/Icon';
 import { compareTrackToLists, getPlaylist, query } from '../AmplifyData';
 import { ARTIST_API_ADDRESS } from '../Constants';
 import { createCrumb, PageBreadcrumbs } from './Breadcrumb';
+import PlaylistAddDialog from './modal/PlaylistAddModal';
+
 
 const columns = [
   { field: 'trackNumber', headerName: '#', width: 24 },
@@ -22,15 +24,30 @@ const columns = [
   { field: 'artistName', headerName: 'Artist', width: 264 },
   { field: 'albumName', headerName: 'Album', width: 230 },
   { field: 'Genre', headerName: 'Genre', width: 124 },
-  { field: 'trackTime', headerName: 'Time', width: 100 },
+  { field: 'trackTime', headerName: 'Time', disableColumnMenu: true, width: 100 },
+
   {
-    field: 'ID', headerName: '#', width: 100,
+    field: 'menu', headerName: ' ', width: 56, disableColumnMenu: true,
     renderCell: (params) => {
       return (
-        <Icon>more_vert</Icon>
+        <div>
+          <Icon>more_vert</Icon>
+        </div>
+      );
+    }
+  },
+
+  {
+    field: 'ID', headerName: ' ', width: 56, disableColumnMenu: true,
+    renderCell: (params) => {
+      return (
+        <div>
+          <PlaylistAddDialog count={0} track={params.row} />
+        </div>
       );
     }
   }
+
 ];
 
 
@@ -103,9 +120,11 @@ export default class TrackListView extends React.Component {
     return this.props.type.replace('.html', '').toLowerCase();
   }
   handleCellClick(params) {
-    if (params?.field === 'ID') {
-      // alert(params.field);
+    if (params?.field === 'menu') {
       listViewMenuClick$.next(params.row);
+      return;
+    }
+    if (params?.field === 'ID') {
       return;
     }
     const items = this.state.objects;
@@ -133,7 +152,7 @@ export default class TrackListView extends React.Component {
     if (AppState.PLAYING) className.push('collapsed');
     return (
       <div>
-        <PageBreadcrumbs crumb={crumb} />
+        <PageBreadcrumbs open={this.props.open} crumb={crumb} />
         <div className={className.join(' ')}>
           <DataGrid onCellClick={this.handleCellClick.bind(this)} rows={objects} columns={cols} pageSize={50} />
         </div>

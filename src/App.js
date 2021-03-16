@@ -29,9 +29,16 @@ import { TrackMenu } from './components/TrackMenu';
 import DashPage from './components/DashPage';
 import { APP_NAME } from './Constants';
 import PageBreadcrumbs from './components/Breadcrumb';
+import NavPlayList from './components/NavPlayList';
+import SearchDialog from './components/modal/SearchModal';
 
 // const drawerWidth = 240;
 
+function DisplayFindView(props) {
+  let { type, param } = useParams();
+  console.log({ type, param })
+  return (<ArtistList type={type} param={param} open={props.open} />);
+}
 
 
 function DisplayThumbView(props) {
@@ -48,8 +55,10 @@ function DisplayListView(props) {
 function App() {
   const [open, setOpen] = React.useState(false);
   const [home, setHome] = React.useState(false);
+  const [find, setFind] = React.useState({ open: false });
   const [playing, setPlaying] = React.useState(AppState.PLAYING);
-  const [menu, setMenu] = React.useState({});
+  const [snackMenuOpen, setMenu] = React.useState(false);
+  const [editedTrack, setEditedTrack] = React.useState({});
 
   const classes = useStyles();
 
@@ -60,12 +69,24 @@ function App() {
     setOpen(true);
   };
 
+  const handleSearchClose = () => {
+    setFind({ open: false });
+  };
   const handleDrawerClose = () => {
     setOpen(false);
   };
   const handleOops = () => {
-    setMenu({});
+    setMenu(false);
   };
+
+  const handleInputChange = (arg) => {
+    const keyCode = arg.keyCode;
+    const param = arg.target?.value;
+    if (keyCode === 13) {
+      setFind({ open: true, param });
+      console.log({ arg, keyCode, val: arg.target?.value })
+    }
+  }
 
   const handleSetHome = (arg) => {
     console.log({ arg })
@@ -78,7 +99,10 @@ function App() {
     setPlaying(playingNow);
   }
 
-  listViewMenuClick.subscribe(setMenu);
+  listViewMenuClick.subscribe(track => {
+    setMenu(true);
+    setEditedTrack(track);
+  });
   AppState.LOADED = true;
   return (
     <div className={['App', home ? 'home' : ''].join(' ')}>
@@ -108,12 +132,13 @@ function App() {
 
 
             <div className={classes.search}>
-
+              <SearchDialog close={handleSearchClose} isOpen={find.open} param={find.param} />
               <div className={classes.searchIcon}>
                 <Icon>search</Icon>
               </div>
               <InputBase
                 placeholder="Search…"
+                onKeyUp={handleInputChange}
                 classes={{
                   root: classes.inputRoot,
                   input: classes.inputInput,
@@ -140,12 +165,13 @@ function App() {
 
           {/* primary nav */}
           <NavList />
-
+          <NavPlayList />
         </Drawer>
 
         <div class="amplify-main-workspace">
           {/* workspace */}
           <Switch>
+            <Route path="/find/:type/:param" children={<DisplayFindView open={open} />} />
             <Route path="/list/:type" children={<DisplayThumbView open={open} />} />
             <Route path="/show/:type/:id" children={<DisplayListView open={open} />} />
             <Route path="/show/:type" children={<DisplayListView open={open} />} />
@@ -156,8 +182,8 @@ function App() {
 
 
 
-        <Drawer variant="temporary" onClick={handleOops} anchor="bottom" open={!!menu.ID}>
-          <TrackMenu track={menu} />
+        <Drawer variant="temporary" onClick={handleOops} anchor="bottom" open={snackMenuOpen}>
+          <TrackMenu track={editedTrack} />
         </Drawer>
 
 

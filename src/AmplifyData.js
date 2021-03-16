@@ -10,6 +10,13 @@ const endpoint = (type, id) => {
   return address.join('?')
 }
 
+const search = (param, type) => {
+  const address = [`${ARTIST_API_ADDRESS}search?param=${param}`];
+  if (type) address.push(`type=${type}`);
+  // alert(address)
+  return axios.get(address.join('&'));
+}
+
 const query = (type, id) => {
   return axios.get(endpoint(type, id));
 }
@@ -65,15 +72,19 @@ function saveList(list) {
   return new Promise(o => {
     axios.post(ARTIST_API_ADDRESS + 'playlist', list)
       .then(data => {
-        // this.playListsUpdated.emit();
+        // playListsUpdated.emit();
         updatePlaylistCollection()
         o(data);
       })
   })
 }
+function getPlaylistByKey(title, track) {
+  return PLAYLIST_COLLECTION.filter(c => c.Title === title || c.listKey === title)[0];
+}
 function addToPlaylistByKey(title, track) {
-  const list = PLAYLIST_COLLECTION.filter(c => c.Title === title)[0];
-  if (list) addToPlaylist(list, track)
+  const list = getPlaylistByKey(title, track);
+  if (list) return addToPlaylist(list, track)
+  return Promise.resolve()
 }
 function addToPlaylist(list, track) {
   const Key = track.Key;
@@ -81,10 +92,24 @@ function addToPlaylist(list, track) {
   if (!existing) {
     list.related.push(Key);
     list.related = list.related.filter((f) => f && f.split);
+    return saveList(list);
   }
+  return removeFromPlaylist(list, track);
+}
+function removeFromPlaylist(list, track) {
+  const existing = list.related.indexOf(track.Key) >= 0;
+  if (existing) {
+    list.related = list.related.filter((f) => f !== track.Key);
+  }
+  // speaker.say(`Removing ${track.Title} from ${list.Title}`);
   return saveList(list);
 }
-
+function createList(Title, track) {
+  return saveList({
+    Title,
+    related: [track.Key]
+  });
+}
 
 function getTrackListByKeys(playlist, Keys) {
   return new Promise(callback => {
@@ -137,6 +162,7 @@ function playListContainsTrack(audioTrack, list) {
 export {
   endpoint,
   query,
+  search,
   send,
   getGenreData,
   getPlaylist,
@@ -144,8 +170,10 @@ export {
   addToPlaylistByKey,
   compareTrackToLists,
   playListContainsTrack,
+  createList,
+  removeFromPlaylist,
   PLAYLIST_COLLECTION
 }
 
 const updatePlaylistCollection = () => query('playlist').then(res => PLAYLIST_COLLECTION = res.data);
-updatePlaylistCollection()
+updatePlaylistCollection();
