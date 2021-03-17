@@ -9,11 +9,16 @@ const listViewMenuClick = listViewMenuClick$.asObservable();
 const playBegin = playBegin$.asObservable();
 
 
+const playScalar = (track) => () => {
+  listViewOnClick$.next({ items: [track], track, index: 0 });
+}
+
 export {
   listViewOnClick$,
   listViewOnClick,
   listViewMenuClick$,
   listViewMenuClick,
+  playScalar,
   playBegin,
   playBegin$
 }

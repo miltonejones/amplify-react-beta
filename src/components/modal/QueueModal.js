@@ -57,10 +57,10 @@ export default function QueueDialog(props) {
   };
 
   const handleCellClick = (params) => {
-    console.log({ params })
+
     const track = params?.row;
     const index = items.indexOf(track);
-    console.log({ items, track, index });
+
     listViewOnClick$.next({ items, track, index });
   }
 

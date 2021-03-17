@@ -7,20 +7,24 @@ import './Player.css';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import EqLabel from './EqLabel';
-import Badge from '@material-ui/core/Badge';
 import { SongPersistService } from './Persist';
 import QueueDialog from '../modal/QueueModal';
-import { compareTrackToLists } from '../../AmplifyData';
+import { compareTrackToLists, PLAYLIST_COLLECTION } from '../../AmplifyData';
 import PlaylistAddDialog from '../modal/PlaylistAddModal';
 
 export default class AudioPlayer extends React.Component {
   cacheType = '';
+
   constructor(props) {
     super(props);
     this.state = {
       url: '',
       progress: 0
     };
+    this.prevTrack = this.prevTrack.bind(this);
+    this.nextTrack = this.nextTrack.bind(this);
+    this.close = this.close.bind(this);
+    this.handleImageClick = this.handleImageClick.bind(this);
   }
 
   next(i = 1) {
@@ -49,16 +53,23 @@ export default class AudioPlayer extends React.Component {
       audioElement
     });
     Analyser.attach(audioElement);
-    // Analyser.eqOutput.subscribe(console.log);
-    //  Analyser.start()
   }
 
   loadTrack(e) {
+
+    if (Analyser.context.state !== 'running') {
+      const k = window.confirm(`The equalizer needs permission to access your system. 
+      Click here to grant permission.`);
+      if (k) {
+        Analyser.context.resume();
+      }
+      return;
+    }
+
     const index = this.state.items?.indexOf(this.state.track);
     const first = index === 0;
     const last = (index + 1) === this.state.items?.length;
     const count = compareTrackToLists(this.state.track);
-    // console.log({ index, first, last })
     this.setState({
       ...this.state,
       first, last, count
@@ -130,7 +141,7 @@ export default class AudioPlayer extends React.Component {
     // const nodes = document.querySelectorAll('.Mui-selected');
     const rows = document.querySelectorAll('.MuiDataGrid-row');
     const id = this.state.track?.ID;
-    // console.log({ rows, id });
+    // 
     Array.from(rows).map(row => {
       const key = row.getAttribute('data-id');
       if (key.toString() === id.toString()) {
@@ -184,13 +195,13 @@ export default class AudioPlayer extends React.Component {
 
         <div className="audio-player-visible-controls">
           <div className="play-state-photo">
-            <img onClick={this.handleImageClick.bind(this)} src={image} alt={datums}
+            <img onClick={this.handleImageClick} src={image} alt={datums}
               className={audioElement?.paused ? '' : 'spinning-cd'} />
           </div>
           <div className="play-state-controls">
             {/* controls [{audioElement?.paused}] */}
 
-            <IconButton onClick={this.prevTrack.bind(this)}
+            <IconButton onClick={this.prevTrack}
               edge="start"
               color="inherit"
               disabled={first}
@@ -198,7 +209,7 @@ export default class AudioPlayer extends React.Component {
               <Icon>fast_rewind</Icon>
             </IconButton>
 
-            <IconButton onClick={this.nextTrack.bind(this)}
+            <IconButton onClick={this.nextTrack}
               edge="start"
               color="inherit"
               disabled={last}
@@ -231,12 +242,12 @@ export default class AudioPlayer extends React.Component {
               <Icon>playlist_add</Icon>
             </Badge> */}
 
-            <PlaylistAddDialog count={count} track={track} />
+            {!!PLAYLIST_COLLECTION.length && <PlaylistAddDialog count={count} track={track} />}
             <QueueDialog items={items} />
 
 
 
-            <IconButton onClick={this.close.bind(this)}
+            <IconButton onClick={this.close}
               edge="start"
               color="inherit"
               aria-label="open drawer" >

@@ -6,15 +6,28 @@ import './owl.css';
 import { listViewOnClick$ } from '../../util/Events';
 import { query } from '../../AmplifyData';
 import { sortObjects } from '../../util/State';
+import Tooltip from '@material-ui/core/Tooltip';
+import { withStyles } from '@material-ui/core/styles';
+import { LinearProgress, Typography } from '@material-ui/core';
+
+const HtmlTooltip = withStyles((theme) => ({
+  tooltip: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: '1px solid #dadde9',
+  },
+}))(Tooltip);
 
 const downloadCollection = (type, id) => () => {
   query(type, id).then(res => {
     const data = res.data;
-    console.log(data.related)
+
     const items = sortObjects(data.related, type);
     const index = 0;
     const track = items[index];
-    console.log({ items, track, index });
+
     listViewOnClick$.next({ items, track, index });
   })
 }
@@ -24,7 +37,7 @@ class ArtistCarousel extends Component {
 
   render() {
     const { objects } = this.props;
-    return !objects ? (<b>loading...</b>) : (
+    return !objects ? (<LinearProgress />) : (
       <OwlCarousel className='owl-theme'
         autoplay={true}
         dots={false}
@@ -42,7 +55,7 @@ class ArtistCarousel extends Component {
         {objects?.result?.map(artist => <div onClick={downloadCollection('artist', artist.ID)} className="item carousel-cell" key={artist.ID}>
           <img alt={artist.Name} src={artist.imageLg} />
           <div className="carousel-cell-text">
-            <div className="carousel-cell-title">{artist.Name}</div>
+            <div className="carousel-cell-title no-wrap">{artist.Name}</div>
             <div className="carousel-cell-artist">{artist.trackCount} tracks in your library</div>
           </div>
         </div>)}
@@ -56,8 +69,8 @@ class ArtistCarousel extends Component {
 class RecentCarousel extends Component {
 
   render() {
-    const { objects, play } = this.props;
-    return !objects ? (<b>loading...</b>) : (
+    const { objects, play, open } = this.props;
+    return !objects ? (<LinearProgress />) : (
       <OwlCarousel className='owl-theme'
         dots={false}
         center={false}
@@ -69,9 +82,20 @@ class RecentCarousel extends Component {
         items={4}
         margin={2} >
         {objects?.result?.map(artist => <div className="item carousel-cell-recent" key={artist.ID}>
-          <img onClick={play(artist)} alt={artist.Title} src={artist.albumImage} />
+          <HtmlTooltip
+            title={
+              <React.Fragment>
+                <Typography color="inherit">{artist.Title}</Typography>
+                <em>artist</em> <b>{artist.artistName}</b>
+              </React.Fragment>
+            }
+          >
+            <img className={open ? 'open' : ''} onClick={play(artist)} alt={artist.Title} src={artist.albumImage} />
+          </HtmlTooltip>
+
+
           <div className="carousel-cell-text">
-            <div className="carousel-cell-title">{artist.Title}</div>
+            <div className="carousel-cell-title no-wrap">{artist.Title}</div>
             <div className="carousel-cell-artist">{artist.artistName}</div>
           </div>
         </div>)}

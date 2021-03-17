@@ -2,7 +2,6 @@
 import React from 'react';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import List from '@material-ui/core/List';
-import appRoutes from '../Routes';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { PLAYLIST_COLLECTION } from '../AmplifyData';
@@ -46,7 +45,7 @@ export default function NavPlayList() {
         })}
 
 
-        <ListItemLink bold={true} icon="playlist_play" key="view-all" prefix="/show/"
+        <ListItemLink bold={true} icon="playlist_play" key="view-all" prefix="/list/"
           primary={`See all ${PLAYLIST_COLLECTION.length} playlists...`} to="Playlist.html" />
 
 

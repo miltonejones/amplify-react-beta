@@ -17,7 +17,7 @@ class AudioAnalyser {
     // audio.crossOrigin = "anonymous";
     audio.addEventListener("error", e => {
       // alert("An error occured");
-      console.log({ e })
+
     });
     this.audio = audio;
     this.width = width;

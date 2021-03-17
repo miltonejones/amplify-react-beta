@@ -4,6 +4,7 @@ import { Analyser } from "./AudioAnalyser";
 
 export default class EqLabel extends React.Component {
 
+  sub = null;
   constructor(props) {
     super(props);
     this.state = {
@@ -11,8 +12,12 @@ export default class EqLabel extends React.Component {
     };
   }
 
+  componentWillUnmount() {
+    this.sub.unsubscribe();
+  }
+
   componentDidMount() {
-    Analyser.eqOutput$.subscribe(data => {
+    this.sub = Analyser.eqOutput$.subscribe(data => {
       this.setState({
         ...this.state,
         data

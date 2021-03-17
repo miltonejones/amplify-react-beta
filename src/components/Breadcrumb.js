@@ -4,8 +4,6 @@ import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import HomeIcon from '@material-ui/icons/Home';
-import WhatshotIcon from '@material-ui/icons/Whatshot';
-import GrainIcon from '@material-ui/icons/Grain';
 import appRoutes from '../Routes';
 import { Icon } from '@material-ui/core';
 
@@ -44,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 const PageBreadcrumbs = (props) => {
   const classes = useStyles();
   const { crumb, open } = props;
-  console.log({ crumb })
+
   return (
     <Breadcrumbs aria-label="breadcrumb" classes={{ root: open ? classes.open : classes.root }}>
       <Link color="inherit" to="/" className={classes.link}>

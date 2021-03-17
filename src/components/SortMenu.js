@@ -2,11 +2,10 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Link } from 'react-router-dom';
 import { Icon } from '@material-ui/core';
 
 
-class NavMenu extends React.Component {
+class SortMenu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -24,7 +23,8 @@ class NavMenu extends React.Component {
     });
   }
 
-  handleClose() {
+  handleClose = (field) => () => {
+    this.props.update(field);
     this.setState({
       ...this.state,
       open: false,
@@ -33,19 +33,20 @@ class NavMenu extends React.Component {
   }
 
   componentDidMount() {
-
     this.setState({
-      items: this.props.items?.filter(item => item.Count > 400)
+      items: this.props.items
     })
   }
   render() {
-    const { open, anchorEl, items } = this.state;
+    const { open, anchorEl } = this.state;
+    const { items, update } = this.props;
+    const sorter = items?.filter(s => s.isActive)[0];
 
     return !items ? (<b>loading...</b>) : (
       <div>
         <Button aria-controls="simple-menu" aria-haspopup="true" onClick={this.handleClick}>
-          <Icon>local_offer</Icon>   Browse Music by Genre...
-      </Button>
+          <Icon>sort_by_alpha</Icon>  Sorted By {sorter?.Label}
+        </Button>
         <Menu
           id="simple-menu"
           open={open}
@@ -53,8 +54,10 @@ class NavMenu extends React.Component {
           keepMounted
           onClose={this.handleClose}
         >
-          {items.map(item => <MenuItem key={item.Name} onClick={this.handleClose}><Link to={`/show/Genre.html/${item.genreKey}`}>{item.Name} ({item.Count}</Link>)</MenuItem>)}
-          <MenuItem onClick={this.handleClose}><Link to="/list/Genre.html">View all genres...</Link></MenuItem>
+          {items.map(item => <MenuItem key={item.Label} onClick={this.handleClose(item.Field)}>
+            {item.isActive && <Icon>check</Icon>}
+            {item.Label}
+          </MenuItem>)}
         </Menu>
       </div>
     );
@@ -62,7 +65,7 @@ class NavMenu extends React.Component {
 }
 
 export {
-  NavMenu
+  SortMenu
 }
 
 

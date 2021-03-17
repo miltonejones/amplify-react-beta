@@ -6,15 +6,16 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Underline from '../underline/Underline';
-import { search } from '../../AmplifyData';
+import { query, search } from '../../AmplifyData';
 import { makeStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { AccordionActions, Avatar, Icon, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText } from '@material-ui/core';
+import { AccordionActions, Avatar, List, ListItem, ListItemAvatar, ListItemText } from '@material-ui/core';
 import { useHistory } from "react-router-dom";
+import { listViewOnClick$ } from '../../util/Events';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -114,7 +115,7 @@ export default class SearchDialog extends React.Component {
         this.setState({
           ...res.data
         });
-        console.log(this.state)
+
       })
   }
   componentDidUpdate() {
@@ -178,11 +179,15 @@ function SimpleAccordion(props) {
     }
     if (map[type]) {
       const href = `/show/${map[type]}/${item.Key}`
-      console.log(type, item);
+
       history.push(href);
       return;
     }
-    console.log(item);
+
+    query('tune', item.Key).then(res => {
+      const track = res.data;
+      listViewOnClick$.next({ items: [track], track, index: 0 });
+    });
   }
 
   return (
@@ -204,7 +209,7 @@ function SimpleAccordion(props) {
 
               <List component="nav" aria-label="main mailbox folders">
 
-                {items[key].items?.map(item => <ListItem onClick={handleListClick(key, item)} button>
+                {items[key].items?.map(item => <ListItem key={key} onClick={handleListClick(key, item)} button>
                   <ListItemAvatar>
                     <Avatar alt={item.Title} src={item.image} />
                   </ListItemAvatar>

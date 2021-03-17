@@ -1,8 +1,24 @@
 
 
 const footers = {
-  artist: (obj) => `${obj.albumCount} albums, ${obj.trackCount} tracks`,
-  album: (obj) => `${obj.artistName}, ${obj.trackCount} tracks`,
+
+  artist: (obj) => {
+    const out = [];
+    if (obj.albumCount) {
+      out.push(`${obj.albumCount} albums`)
+    }
+    out.push(`${obj.trackCount} tracks`)
+    return out.join(', ')
+  },
+
+  album: (obj) => {
+    const out = [];
+    if (obj.artistName) {
+      out.push(`${obj.artistName}`)
+    }
+    out.push(`${obj.trackCount} tracks`)
+    return out.join(', ')
+  },
   genre: (obj) => `${obj.Count} tracks`,
   playlist: (obj) => `${obj.trackCount} tracks`,
 }

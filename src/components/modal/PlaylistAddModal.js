@@ -32,12 +32,7 @@ const useStyles = makeStyles((theme) => ({
     width: '660px',
   }
 }));
-
-const columns = [
-  { field: 'Title', headerName: 'Title', width: 224 },
-  { field: 'artistName', headerName: 'Artist', width: 164 },
-  { field: 'albumName', headerName: 'Album', width: 180 }
-];
+const emptyList = () => <h4>No playlists found</h4>
 
 export default function PlaylistAddDialog(props) {
   const classes = useStyles();
@@ -56,7 +51,6 @@ export default function PlaylistAddDialog(props) {
   const handleCheck = (event) => {
     const listKey = event.target.value;
     addToPlaylistByKey(listKey, track).then(() => {
-      console.log({ PLAYLIST_COLLECTION })
       setGroup(PLAYLIST_COLLECTION)
     });
   }
@@ -80,7 +74,7 @@ export default function PlaylistAddDialog(props) {
         <DialogContent classes={{ root: classes.outer }}>
           <div class="playlist-add-grid">
             {
-              group && group.map && group.map((c, i) =>
+              (group && group.map && group.map((c, i) => (
                 <div class="playlist-add-item no-wrap" key={i}><FormControlLabel
                   control={
                     <Switch
@@ -92,7 +86,7 @@ export default function PlaylistAddDialog(props) {
                     />
                   }
                   label={c.Title}
-                /></div>)
+                /></div>))) || emptyList
             }
           </div>
         </DialogContent>

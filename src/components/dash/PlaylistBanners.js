@@ -13,13 +13,14 @@ export default class PlaylistBanners extends React.Component {
     this.state = {
       objects: []
     };
+    this.getPlaylist = this.getPlaylist.bind(this);
   }
 
   getPlaylist(data) {
     return () => getPlaylist(data).then(items => {
       const index = 0;
       const track = items[index];
-      console.log({ items, track, index });
+
       listViewOnClick$.next({ items, track, index });
     })
   }
@@ -40,7 +41,7 @@ export default class PlaylistBanners extends React.Component {
   render() {
     return (
       <div className="banner-container">
-        {this.state.objects.map(i => <div onClick={this.getPlaylist.bind(this)(i.listKey)} key={i.Title} className="banner standard-button" style={{ backgroundImage: 'url(' + i.image + ')' }}>
+        {this.state.objects.map(i => <div onClick={this.getPlaylist(i.listKey)} key={i.Title} className="banner standard-button" style={{ backgroundImage: 'url(' + i.image + ')' }}>
           {i.Title}
           <div className="material-icons">
             volume_up

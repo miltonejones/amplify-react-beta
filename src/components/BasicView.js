@@ -2,12 +2,13 @@
 import React from 'react';
 import { DataGrid } from '@material-ui/data-grid';
 import { listViewOnClick$, listViewMenuClick$ } from "../util/Events";
-import { AppState, sortObjects } from '../util/State';
+import { AppState, mmss, sortObjects } from '../util/State';
 import Icon from '@material-ui/core/Icon';
-import { compareTrackToLists, getPlaylist, query } from '../AmplifyData';
+import { compareTrackToLists, getPlaylist, query, search } from '../AmplifyData';
 import { ARTIST_API_ADDRESS } from '../Constants';
 import { createCrumb, PageBreadcrumbs } from './Breadcrumb';
 import PlaylistAddDialog from './modal/PlaylistAddModal';
+import { Link } from 'react-router-dom';
 
 
 const columns = [
@@ -21,10 +22,28 @@ const columns = [
       );
     }
   },
-  { field: 'artistName', headerName: 'Artist', width: 264 },
-  { field: 'albumName', headerName: 'Album', width: 230 },
-  { field: 'Genre', headerName: 'Genre', width: 124 },
-  { field: 'trackTime', headerName: 'Time', disableColumnMenu: true, width: 100 },
+  {
+    field: 'artistName', headerName: 'Artist', width: 264,
+    renderCell: params => {
+      return <Link to={'/show/Artist.html/' + params.row.artistFk}>{params.value}</Link>
+    }
+  },
+  {
+    field: 'albumName', headerName: 'Album', width: 230,
+    renderCell: params => {
+      return <Link to={'/show/Album.html/' + params.row.albumFk}>{params.value}</Link>
+    }
+  },
+  {
+    field: 'Genre', headerName: 'Genre', width: 124,
+    renderCell: params => {
+      return <Link to={'/show/Genre.html/' + params.row.genreKey}>{params.value}</Link>
+    }
+  },
+  {
+    field: 'computedTime', headerName: 'Time', disableColumnMenu: true, width: 100,
+    valueGetter: (params) => mmss(params.getValue('trackTime'), 1000)
+  },
 
   {
     field: 'menu', headerName: ' ', width: 56, disableColumnMenu: true,
@@ -60,12 +79,14 @@ const omit = {
 
 export default class TrackListView extends React.Component {
   cacheType = '';
+  findType = '';
   constructor(props) {
     super(props);
     this.state = {
       objects: [],
       activate: AppState.PLAYING
     };
+    this.handleCellClick = this.handleCellClick.bind(this);
   }
 
   getPlaylist() {
@@ -86,8 +107,24 @@ export default class TrackListView extends React.Component {
       ? `${ARTIST_API_ADDRESS}tune`
       : `${ARTIST_API_ADDRESS}${type}?id=${this.props.id}`;
   }
+  searchComponentList() {
+    search(this.props.param, this.props.type).then(res => {
 
+      const objects = res.data.items.map(item => item.data);
+      objects.map(o => o.id = o.ID)
+
+      this.setState({
+        crumb: {
+          label: res.data.label
+        }, objects
+      });
+    });
+  }
   loadComponentList() {
+    if (this.props.param) {
+      this.searchComponentList();
+      return;
+    }
     const type = this.getType();
     if (type === 'playlist') {
       return this.getPlaylist();
@@ -96,10 +133,9 @@ export default class TrackListView extends React.Component {
     const promise = type === 'library'
       ? query('tune')
       : query(type, this.props.id);
-    // console.log(address)
     promise
       .then(res => {
-        console.log(res.data)
+        // 
         const datum = res.data;
         this.setObjects(datum.related || datum, datum.Name || datum.Title);
       });
@@ -110,6 +146,10 @@ export default class TrackListView extends React.Component {
     const address = this.getUriLocation();
     if (this.cacheType !== address) {
       this.cacheType = address;
+      this.loadComponentList();
+    }
+    if (this.props.type && this.findType !== this.props.type) {
+      this.findType = this.props.type;
       this.loadComponentList();
     }
   }
@@ -124,13 +164,13 @@ export default class TrackListView extends React.Component {
       listViewMenuClick$.next(params.row);
       return;
     }
-    if (params?.field === 'ID') {
+    if (params?.field !== 'Title') {
       return;
     }
     const items = this.state.objects;
     const track = params?.row;
     const index = items.indexOf(track);
-    console.log({ items, track, index });
+
     listViewOnClick$.next({ items, track, index });
     this.activate();
   }
@@ -154,7 +194,7 @@ export default class TrackListView extends React.Component {
       <div>
         <PageBreadcrumbs open={this.props.open} crumb={crumb} />
         <div className={className.join(' ')}>
-          <DataGrid onCellClick={this.handleCellClick.bind(this)} rows={objects} columns={cols} pageSize={50} />
+          <DataGrid onCellClick={this.handleCellClick} rows={objects} columns={cols} pageSize={50} />
         </div>
       </div>
     )

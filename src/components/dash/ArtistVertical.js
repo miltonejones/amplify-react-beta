@@ -32,8 +32,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-
-
 export default function ArtistVertical(props) {
   const { objects, field, icon, type } = props;
   const classes = useStyles();
@@ -43,15 +41,15 @@ export default function ArtistVertical(props) {
   const loadVertical = (id) => () => {
     query(type, id).then(res => {
       const data = res.data;
-      console.log(data.related)
+
       const items = sortObjects(data.related, type);
       const index = 0;
       const track = items[index];
-      console.log({ items, track, index });
+
       listViewOnClick$.next({ items, track, index });
     })
   }
-  // console.log({ artists })
+  // 
   return (
     <div className={classes.root}>
       <div className={classes.title}><Icon>{icon}</Icon>{label}</div>

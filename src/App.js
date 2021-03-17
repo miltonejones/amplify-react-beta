@@ -1,11 +1,9 @@
-// import logo from './logo.svg';
 import React from 'react';
 import clsx from 'clsx';
 import './App.css';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import InputBase from '@material-ui/core/InputBase';
-// import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Drawer from '@material-ui/core/Drawer';
@@ -20,7 +18,6 @@ import {
 } from "react-router-dom";
 import ArtistList from './components/BasicList';
 import TrackListView from "./components/BasicView";
-// import { Subject } from 'rxjs';
 import AudioPlayer from './components/audio/Player';
 import Underline from './components/underline/Underline';
 import { listViewMenuClick } from "./util/Events";
@@ -28,15 +25,15 @@ import { AppState } from "./util/State";
 import { TrackMenu } from './components/TrackMenu';
 import DashPage from './components/DashPage';
 import { APP_NAME } from './Constants';
-import PageBreadcrumbs from './components/Breadcrumb';
 import NavPlayList from './components/NavPlayList';
 import SearchDialog from './components/modal/SearchModal';
-
-// const drawerWidth = 240;
+import WaitIcon from './components/WaitIcon';
 
 function DisplayFindView(props) {
   let { type, param } = useParams();
-  console.log({ type, param })
+  if (type === 'songs') {
+    return (<TrackListView type={type} param={param} open={props.open} />);
+  }
   return (<ArtistList type={type} param={param} open={props.open} />);
 }
 
@@ -84,17 +81,14 @@ function App() {
     const param = arg.target?.value;
     if (keyCode === 13) {
       setFind({ open: true, param });
-      console.log({ arg, keyCode, val: arg.target?.value })
     }
   }
 
   const handleSetHome = (arg) => {
-    console.log({ arg })
     setHome(arg)
   }
 
   const setPlayState = (playingNow) => {
-    console.log({ playingNow })
     AppState.PLAYING = playingNow;
     setPlaying(playingNow);
   }
@@ -103,10 +97,10 @@ function App() {
     setMenu(true);
     setEditedTrack(track);
   });
+
   AppState.LOADED = true;
   return (
     <div className={['App', home ? 'home' : ''].join(' ')}>
-
       <Router>
 
         {/* toolbar element */}
@@ -116,21 +110,21 @@ function App() {
             [classes.appBarShift]: open,
           })}>
           <Toolbar >
+            {/* hamburger menu */}
             <IconButton
               edge="start"
               className={classes.menuButton}
               color="inherit"
               onClick={handleDrawerOpen}
-              aria-label="open drawer"
-            >
+              aria-label="open drawer" >
               <Icon>menu</Icon>
             </IconButton>
+            {/* logo */}
             <Link to="/">
               <img className="toolbar-logo" alt={APP_NAME} src="http://ullify.com/assets/notify.png" />
               <Underline innerText="Amplify!" />
             </Link>
-
-
+            {/* search */}
             <div className={classes.search}>
               <SearchDialog close={handleSearchClose} isOpen={find.open} param={find.param} />
               <div className={classes.searchIcon}>
@@ -146,11 +140,11 @@ function App() {
                 inputProps={{ 'aria-label': 'search' }}
               />
             </div>
-
-
+            <div className={classes.sectionDesktop}>
+              <WaitIcon />
+            </div>
           </Toolbar>
         </AppBar>
-
 
         {/* sidebar element */}
         <Drawer
@@ -160,16 +154,15 @@ function App() {
           open={open}
           classes={{
             paper: classes.drawerPaper,
-          }}
-        >
-
+          }} >
           {/* primary nav */}
           <NavList />
+          {/* secondary nav */}
           <NavPlayList />
         </Drawer>
 
+        {/* primary workspace */}
         <div class="amplify-main-workspace">
-          {/* workspace */}
           <Switch>
             <Route path="/find/:type/:param" children={<DisplayFindView open={open} />} />
             <Route path="/list/:type" children={<DisplayThumbView open={open} />} />
@@ -180,15 +173,13 @@ function App() {
           </Switch>
         </div>
 
-
-
+        {/* bottom sheet */}
         <Drawer variant="temporary" onClick={handleOops} anchor="bottom" open={snackMenuOpen}>
           <TrackMenu track={editedTrack} />
         </Drawer>
-
-
       </Router>
 
+      {/* audio player */}
       <Drawer
         className={clsx({ [classes.player]: playing })}
         variant="persistent"
@@ -196,15 +187,9 @@ function App() {
         open={playing}
         classes={{
           paper: clsx({ [classes.player]: playing }),
-        }}
-      >
-
+        }}  >
         <AudioPlayer notify={setPlayState} />
-
       </Drawer>
-
-
-      {/* */}
     </div >
   );
 }

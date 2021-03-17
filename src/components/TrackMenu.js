@@ -6,7 +6,6 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Link } from 'react-router-dom';
-import PlaylistAddDialog from './modal/PlaylistAddModal';
 
 function ListItemLink(props) {
   const { icon, primary, secondary, to } = props;
@@ -35,21 +34,21 @@ const TrackMenu = (props) => {
   const nodes = [
     {
       label: 'View Artist',
-      when: !!props.track?.artistName,
+      when: !!props.track?.artistFk,
       footer: props.track?.artistName,
       icon: 'people',
       path: `/show/Artist.html/${props.track.artistFk}`
     },
     {
       label: 'View Album',
-      when: !!props.track?.albumName,
+      when: !!props.track?.albumFk,
       footer: props.track?.albumName,
       icon: 'album',
       path: `/show/Album.html/${props.track.albumFk}`
     },
     {
       label: 'View Genre',
-      when: !!props.track?.Genre,
+      when: !!props.track?.genreKey,
       footer: props.track?.Genre,
       icon: 'local_offer',
       path: `/show/Genre.html/${props.track.genreKey}`

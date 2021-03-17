@@ -19,7 +19,7 @@ export default class ProgressLabel extends React.Component {
     const left = el.offsetLeft;
     const size = el.offsetWidth;
     const data = { x: event.clientX - left, left, size };
-    console.log({ data, progress: data.x / data.size });
+
     this.props.seek(data.x / data.size);
   }
   componentDidMount() {
@@ -37,7 +37,7 @@ export default class ProgressLabel extends React.Component {
 
     this.oldStatus = this.props.state;
     this.cacheText = this.props.text;
-    // console.log(this.props.value, this.cacheSize)
+    // 
   }
 
   reset() {

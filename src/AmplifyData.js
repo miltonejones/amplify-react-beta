@@ -1,8 +1,14 @@
+
 import axios from 'axios';
+import { Subject } from 'rxjs';
 import { ARTIST_API_ADDRESS } from './Constants';
 import { generateKey, randomize } from './util/State';
 
 let PLAYLIST_COLLECTION = [];
+
+const dataStateChange$ = new Subject();
+const dataStateChange = dataStateChange$.asObservable();
+
 
 const endpoint = (type, id) => {
   const address = [`${ARTIST_API_ADDRESS}${type}`];
@@ -13,16 +19,25 @@ const endpoint = (type, id) => {
 const search = (param, type) => {
   const address = [`${ARTIST_API_ADDRESS}search?param=${param}`];
   if (type) address.push(`type=${type}`);
-  // alert(address)
-  return axios.get(address.join('&'));
+  return eventPromise(axios.get(address.join('&')));
+}
+
+const eventPromise = (promise) => {
+  return new Promise(callback => {
+    dataStateChange$.next(false);
+    promise.then(res => {
+      dataStateChange$.next(true);
+      callback(res);
+    });
+  })
 }
 
 const query = (type, id) => {
-  return axios.get(endpoint(type, id));
+  return eventPromise(axios.get(endpoint(type, id)));
 }
 
 const send = (type, data) => {
-  return axios.post(endpoint(type), data);
+  return eventPromise(axios.post(endpoint(type), data));
 }
 
 const getGenreData = () => {
@@ -32,9 +47,15 @@ const getGenreData = () => {
       const genres = randomize(items.filter(genre => {
         return genre.Count > 19 && !!genre.genreImage
       })).slice(0, 2).map(genre => genre.genreKey);
-      console.log({ items })
+
       Promise.all(genres.map(q => query('genre', q.replace('&', '%26'))))
-        .then(data => callback({ genres, data, items }))
+        .then(data => {
+
+          data.map(d => {
+            return d.data = d.data?.slice(0, 6);
+          })
+          callback({ genres, data, items })
+        })
     });
   })
 }
@@ -115,9 +136,9 @@ function getTrackListByKeys(playlist, Keys) {
   return new Promise(callback => {
     send('tune', { Keys })
       .then(res => {
-        console.log({ res })
+
         const related = organize(playlist, res.data);
-        console.log({ related })
+
         callback(related);
       })
   })
@@ -128,10 +149,10 @@ function getPlaylist(id) {
     query('playlist')
       .then(res => {
         const playlist = res.data?.filter(d => generateKey(d.Title) === id)[0];
-        // console.log({ playlist })
+        // 
         if (playlist) {
           const Keys = playlist.related.filter(f => !!f);
-          // console.log({ Keys })
+          // 
           getTrackListByKeys(playlist, Keys)
             .then(callback)
         }
@@ -145,7 +166,7 @@ function compareTrackToLists(track) {
       .filter((list) => playListContainsTrack(track, list));
     return playlists.length;
   }
-  console.log('NO LISTS')
+
   return 0;
 }
 
@@ -164,6 +185,7 @@ export {
   query,
   search,
   send,
+  dataStateChange,
   getGenreData,
   getPlaylist,
   addToPlaylist,
