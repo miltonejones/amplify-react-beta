@@ -3,10 +3,12 @@ import { Subject } from 'rxjs';
 const listViewOnClick$ = new Subject();
 const listViewMenuClick$ = new Subject();
 const playBegin$ = new Subject();
+const playEnd$ = new Subject();
 
 const listViewOnClick = listViewOnClick$.asObservable();
 const listViewMenuClick = listViewMenuClick$.asObservable();
 const playBegin = playBegin$.asObservable();
+const playEnd = playEnd$.asObservable();
 
 
 const playScalar = (track) => () => {
@@ -20,5 +22,7 @@ export {
   listViewMenuClick,
   playScalar,
   playBegin,
-  playBegin$
+  playBegin$,
+  playEnd,
+  playEnd$
 }

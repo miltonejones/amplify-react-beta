@@ -170,8 +170,9 @@ export default class TrackListView extends React.Component {
     const items = this.state.objects;
     const track = params?.row;
     const index = items.indexOf(track);
+    const source = this.props.type + '/' + this.props.id;
 
-    listViewOnClick$.next({ items, track, index });
+    listViewOnClick$.next({ items, track, index, source });
     this.activate();
   }
   activate() {

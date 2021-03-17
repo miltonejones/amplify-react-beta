@@ -51,7 +51,7 @@ export default function PlaylistAddDialog(props) {
   const handleCheck = (event) => {
     const listKey = event.target.value;
     addToPlaylistByKey(listKey, track).then(() => {
-      setGroup(PLAYLIST_COLLECTION)
+      setGroup(PLAYLIST_COLLECTION);
     });
   }
   return (

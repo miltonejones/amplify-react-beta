@@ -19,14 +19,12 @@ export default class SongList extends React.Component {
   }
 
   componentDidMount() {
-
     this.sub = playBegin.subscribe(state => {
       if (state) {
         this.setState({
           ...this.state,
           ...state
-        })
-
+        });
       }
     })
   }
@@ -35,7 +33,6 @@ export default class SongList extends React.Component {
   render() {
     const { objects, play } = this.props;
     const data = objects?.data;
-    // 
     const items = !(data && data.length) ? [] : data.slice(0, 6); // randomize(data).slice(0, 6)
     return !data ? (<LinearProgress />) : (
       <div className="genre-song-list"  >

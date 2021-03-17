@@ -45,7 +45,7 @@ export default function NavPlayList() {
         })}
 
 
-        <ListItemLink bold={true} icon="playlist_play" key="view-all" prefix="/list/"
+        <ListItemLink immutable bold icon="playlist_play" key="view-all" prefix="/list/"
           primary={`See all ${PLAYLIST_COLLECTION.length} playlists...`} to="Playlist.html" />
 
 

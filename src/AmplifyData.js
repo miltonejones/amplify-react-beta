@@ -91,11 +91,9 @@ function stripExt(value) {
 
 function saveList(list) {
   return new Promise(o => {
-    axios.post(ARTIST_API_ADDRESS + 'playlist', list)
+    eventPromise(axios.post(ARTIST_API_ADDRESS + 'playlist', list))
       .then(data => {
-        // playListsUpdated.emit();
-        updatePlaylistCollection()
-        o(data);
+        updatePlaylistCollection().then(() => o(data));
       })
   })
 }
@@ -197,5 +195,9 @@ export {
   PLAYLIST_COLLECTION
 }
 
-const updatePlaylistCollection = () => query('playlist').then(res => PLAYLIST_COLLECTION = res.data);
-updatePlaylistCollection();
+const updatePlaylistCollection = () => {
+  return new Promise(cb => {
+    query('playlist').then(res => cb(PLAYLIST_COLLECTION = res.data));
+  })
+}
+updatePlaylistCollection().then(console.log);

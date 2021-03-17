@@ -27,7 +27,7 @@ import DashPage from './components/DashPage';
 import { APP_NAME } from './Constants';
 import NavPlayList from './components/NavPlayList';
 import SearchDialog from './components/modal/SearchModal';
-import WaitIcon from './components/WaitIcon';
+import { WaitIcon } from './components/WaitIcon';
 
 function DisplayFindView(props) {
   let { type, param } = useParams();

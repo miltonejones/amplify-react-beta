@@ -1,6 +1,6 @@
 import React from 'react';
 import { CLOUD_FRONT_URL, DEFAULT_IMAGE } from "../../Constants";
-import { listViewOnClick, playBegin$ } from "../../util/Events";
+import { listViewOnClick, playBegin$, playEnd$ } from "../../util/Events";
 import { Analyser } from "./AudioAnalyser";
 import ProgressLabel from "./ProgressLabel";
 import './Player.css';
@@ -9,8 +9,9 @@ import Icon from '@material-ui/core/Icon';
 import EqLabel from './EqLabel';
 import { SongPersistService } from './Persist';
 import QueueDialog from '../modal/QueueModal';
-import { compareTrackToLists, PLAYLIST_COLLECTION } from '../../AmplifyData';
+import { compareTrackToLists, PLAYLIST_COLLECTION, dataStateChange } from '../../AmplifyData';
 import PlaylistAddDialog from '../modal/PlaylistAddModal';
+
 
 export default class AudioPlayer extends React.Component {
   cacheType = '';
@@ -56,7 +57,6 @@ export default class AudioPlayer extends React.Component {
   }
 
   loadTrack(e) {
-
     if (Analyser.context.state !== 'running') {
       const k = window.confirm(`The equalizer needs permission to access your system. 
       Click here to grant permission.`);
@@ -74,6 +74,7 @@ export default class AudioPlayer extends React.Component {
       ...this.state,
       first, last, count
     });
+    playBegin$.next(this.state);
   }
 
   playTrack(track) {
@@ -110,6 +111,7 @@ export default class AudioPlayer extends React.Component {
 
   nextTrack() {
     const track = this.fwd();
+    playEnd$.next(this.state);
     this.playTrack(track)
   }
 
@@ -123,7 +125,6 @@ export default class AudioPlayer extends React.Component {
     });
     this.props.notify(true);
     SongPersistService.add(opts.track);
-    playBegin$.next(this.state)
     setTimeout(() => this.updateList(), 999);
   }
 
@@ -137,11 +138,9 @@ export default class AudioPlayer extends React.Component {
     });
   }
 
-  updateList() { // HACK
-    // const nodes = document.querySelectorAll('.Mui-selected');
+  updateList() {
     const rows = document.querySelectorAll('.MuiDataGrid-row');
     const id = this.state.track?.ID;
-    // 
     Array.from(rows).map(row => {
       const key = row.getAttribute('data-id');
       if (key.toString() === id.toString()) {
@@ -151,11 +150,11 @@ export default class AudioPlayer extends React.Component {
       }
       return false;
     });
-    // Array.from(nodes).map(node => node.classList.remove('Mui-selected'));
   }
 
   componentWillUnmount() {
     this.subscription.unsubscribe();
+    this.sub.unsubscribe();
   }
 
   handleImageClick() {
@@ -171,6 +170,16 @@ export default class AudioPlayer extends React.Component {
       // const url = play(text);
       // this.setState({ url });
       this.setQueue(opts);
+    });
+
+    this.sub = dataStateChange.subscribe(ready => {
+      if (ready && this.state.track) {
+        const count = compareTrackToLists(this.state.track);
+        this.setState({
+          ...this.state,
+          count
+        })
+      }
     });
     const audio = document.querySelector('audio');
     this.attach(audio);

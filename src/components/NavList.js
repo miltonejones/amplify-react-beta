@@ -11,6 +11,7 @@ import { NavLink } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import { ListItemSecondaryAction } from '@material-ui/core';
+import { PlayIcon } from './WaitIcon';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function ListItemLink(props) {
-  const { icon, primary, to, prefix, count, bold } = props;
+  const { icon, primary, to, prefix, count, bold, immutable } = props;
 
   const isActive = (match, location) => {
     if (!location) {
@@ -48,7 +49,8 @@ function ListItemLink(props) {
   return (
     <ListItem button component={CustomLink}>
       <ListItemIcon classes={{ root: 'nav-list-icon' }}>
-        <Icon>{icon}</Icon>
+        {/* <Icon>{icon}</Icon> */}
+        <PlayIcon immutable={immutable} icon={icon} path={to} />
       </ListItemIcon>
       <ListItemText primary={primary} />
       {count && <ListItemSecondaryAction>
@@ -71,12 +73,9 @@ export default function NavList() {
         </ListSubheader>
         }
       >
-
         {routes.map(route => {
           return (
-
             <ListItemLink icon={route.data.icon} key={route.data.label} prefix={route.data.prefix} primary={route.data.label} to={route.path} />
-
           )
         })}
       </List>
