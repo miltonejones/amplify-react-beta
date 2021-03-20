@@ -1,6 +1,6 @@
 import React from 'react';
 import { CLOUD_FRONT_URL, DEFAULT_IMAGE } from "../../Constants";
-import { listViewOnClick, playBegin$, playEnd$ } from "../../util/Events";
+import { playbackRequest, playBegin$, playEnd$ } from "../../util/Events";
 import { Analyser } from "./AudioAnalyser";
 import ProgressLabel from "./ProgressLabel";
 import './Player.css';
@@ -9,8 +9,11 @@ import Icon from '@material-ui/core/Icon';
 import EqLabel from './EqLabel';
 import { SongPersistService } from './Persist';
 import QueueDialog from '../modal/QueueModal';
-import { compareTrackToLists, PLAYLIST_COLLECTION, dataStateChange } from '../../AmplifyData';
+import { compareTrackToLists, PLAYLIST_COLLECTION, dataStateChange, save } from '../../AmplifyData';
 import PlaylistAddDialog from '../modal/PlaylistAddModal';
+import { HtmlTooltip } from '../HtmlTooltip';
+import { Typography } from '@material-ui/core';
+import { AppState } from '../../util/State';
 
 
 export default class AudioPlayer extends React.Component {
@@ -55,7 +58,16 @@ export default class AudioPlayer extends React.Component {
     });
     Analyser.attach(audioElement);
   }
-
+  setTime() {
+    const { audioElement, track } = this.state;
+    if (!track.trackTime) {
+      const trackTime = audioElement.duration * 1000;
+      track.trackTime = trackTime;
+      save(track).then(console.log);
+      return;
+    }
+    console.log({ time: track.trackTime })
+  }
   loadTrack(e) {
     if (Analyser.context.state !== 'running') {
       const k = window.confirm(`The equalizer needs permission to access your system. 
@@ -72,9 +84,13 @@ export default class AudioPlayer extends React.Component {
     const count = compareTrackToLists(this.state.track);
     this.setState({
       ...this.state,
+      before: this.prev(),
+      after: this.next(),
       first, last, count
     });
+    AppState.TRACK = this.state.track;
     playBegin$.next(this.state);
+    this.setTime();
   }
 
   playTrack(track) {
@@ -88,7 +104,6 @@ export default class AudioPlayer extends React.Component {
         index,
         track
       });
-      setTimeout(() => this.updateList(), 999);
       return;
     }
     this.close();
@@ -112,6 +127,7 @@ export default class AudioPlayer extends React.Component {
   nextTrack() {
     const track = this.fwd();
     playEnd$.next(this.state);
+    AppState.TRACK = {};
     this.playTrack(track)
   }
 
@@ -125,7 +141,6 @@ export default class AudioPlayer extends React.Component {
     });
     this.props.notify(true);
     SongPersistService.add(opts.track);
-    setTimeout(() => this.updateList(), 999);
   }
 
   setProgress(player) {
@@ -135,20 +150,6 @@ export default class AudioPlayer extends React.Component {
     this.setState({
       ...this.state,
       duration, currentTime, progress
-    });
-  }
-
-  updateList() {
-    const rows = document.querySelectorAll('.MuiDataGrid-row');
-    const id = this.state.track?.ID;
-    Array.from(rows).map(row => {
-      const key = row.getAttribute('data-id');
-      if (key.toString() === id.toString()) {
-        row.classList.add('Mui-selected')
-      } else {
-        row.classList.remove('Mui-selected')
-      }
-      return false;
     });
   }
 
@@ -166,7 +167,7 @@ export default class AudioPlayer extends React.Component {
   }
 
   componentDidMount() {
-    this.subscription = listViewOnClick.subscribe(opts => {
+    this.subscription = playbackRequest.subscribe(opts => {
       // const url = play(text);
       // this.setState({ url });
       this.setQueue(opts);
@@ -189,6 +190,8 @@ export default class AudioPlayer extends React.Component {
       first,
       last,
       track,
+      before,
+      after,
       audioElement,
       progress,
       items,
@@ -210,21 +213,45 @@ export default class AudioPlayer extends React.Component {
           <div className="play-state-controls">
             {/* controls [{audioElement?.paused}] */}
 
-            <IconButton onClick={this.prevTrack}
-              edge="start"
-              color="inherit"
-              disabled={first}
-              aria-label="open drawer" >
-              <Icon>fast_rewind</Icon>
-            </IconButton>
+            <HtmlTooltip
+              title={
+                <React.Fragment>
+                  previous track
+                  <Typography color="inherit">{before?.Title}</Typography>
+                  <div><em>artist</em> <b>{before?.artistName}</b></div>
+                  <div><em>album</em> <b>{before?.albumName}</b></div>
+                </React.Fragment>
+              }
+            >
+              <IconButton onClick={this.prevTrack}
+                edge="start"
+                color="inherit"
+                disabled={first}
+                aria-label="open drawer" >
+                <Icon>fast_rewind</Icon>
+              </IconButton>
+            </HtmlTooltip>
 
-            <IconButton onClick={this.nextTrack}
-              edge="start"
-              color="inherit"
-              disabled={last}
-              aria-label="open drawer" >
-              <Icon>fast_forward</Icon>
-            </IconButton>
+
+            <HtmlTooltip
+              title={
+                <React.Fragment>
+                  next track
+                  <Typography color="inherit">{after?.Title}</Typography>
+                  <div><em>artist</em> <b>{after?.artistName}</b></div>
+                  <div><em>album</em> <b>{after?.albumName}</b></div>
+                </React.Fragment>
+              }
+            >
+              <IconButton onClick={this.nextTrack}
+                edge="start"
+                color="inherit"
+                disabled={last}
+                aria-label="open drawer" >
+                <Icon>fast_forward</Icon>
+              </IconButton>
+            </HtmlTooltip>
+
 
           </div>
           <div className="player-progress">
@@ -238,43 +265,25 @@ export default class AudioPlayer extends React.Component {
           </div>
 
           <div className="player-track-menu">
-
-            {/* <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer" >
-              <Icon>playlist_add</Icon>
-            </IconButton> */}
-
-
-            {/* <Badge color="secondary" badgeContent={count}>
-              <Icon>playlist_add</Icon>
-            </Badge> */}
-
             {!!PLAYLIST_COLLECTION.length && <PlaylistAddDialog count={count} track={track} />}
             <QueueDialog items={items} />
 
+            <HtmlTooltip
+              title="close player"
+            >
+              <IconButton onClick={this.close}
+                edge="start"
+                color="inherit"
+                aria-label="open drawer" >
+                <Icon>close</Icon>
+              </IconButton>
+            </HtmlTooltip>
 
 
-            <IconButton onClick={this.close}
-              edge="start"
-              color="inherit"
-              aria-label="open drawer" >
-              <Icon>close</Icon>
-            </IconButton>
 
-            {/* <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer" >
-              <Icon>queue_music</Icon>
-            </IconButton> */}
 
           </div>
-
         </div>
-
-
 
         <audio id="page-audio-player" autoPlay={true} src={url} crossOrigin="anonymous">
           <source type="audio/mpeg" />

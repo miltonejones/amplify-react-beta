@@ -6,9 +6,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import appRoutes from '../Routes';
-import Icon from '@material-ui/core/Icon';
 import { NavLink } from 'react-router-dom';
-
 import { makeStyles } from '@material-ui/core/styles';
 import { ListItemSecondaryAction } from '@material-ui/core';
 import { PlayIcon } from './WaitIcon';

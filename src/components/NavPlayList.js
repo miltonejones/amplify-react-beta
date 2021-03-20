@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function NavPlayList() {
   const classes = useStyles();
-  const routes = PLAYLIST_COLLECTION.filter(c => c.trackCount > 40 && c.Title.length < 25);// appRoutes.filter(route => route.data?.icon);
+  const routes = PLAYLIST_COLLECTION.filter(c => c.trackCount > 40 && c.Title.length < 25).slice(0, 6);
   routes.map(r => r.listKey = generateKey(r.Title))
   return (
     <div className={classes.root}>
@@ -34,24 +34,17 @@ export default function NavPlayList() {
         </ListSubheader>
         }
       >
-
+        <ListItemLink icon="music_note" prefix="/recent/"
+          primary="Recently Played" to="Recent.html" />
         {routes.map(route => {
           return (
-
             <ListItemLink icon="playlist_add_check" count={route.trackCount} key={route.Title} prefix="/show/Playlist.html/"
               primary={route.Title} to={route.listKey} />
-
           )
         })}
-
-
         <ListItemLink immutable bold icon="playlist_play" key="view-all" prefix="/list/"
           primary={`See all ${PLAYLIST_COLLECTION.length} playlists...`} to="Playlist.html" />
-
-
       </List>
-
     </div>
   );
 }
-

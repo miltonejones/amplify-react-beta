@@ -16,6 +16,15 @@ const endpoint = (type, id) => {
   return address.join('?')
 }
 
+const apple = (title, artist) => {
+  const qs = ['Title=' + title.replace(/\.[^.]{3}/, ''), 'info=yes'];
+  if (artist?.length) {
+    qs.push(`artist=${artist}`);
+  }
+  const address = `${ARTIST_API_ADDRESS}tune?${qs.join('&')}`;
+  return eventPromise(axios.get(address));
+}
+
 const search = (param, type) => {
   const address = [`${ARTIST_API_ADDRESS}search?param=${param}`];
   if (type) address.push(`type=${type}`);
@@ -38,6 +47,10 @@ const query = (type, id) => {
 
 const send = (type, data) => {
   return eventPromise(axios.post(endpoint(type), data));
+}
+
+const save = (track) => {
+  return eventPromise(axios.post(endpoint('tune'), track));
 }
 
 const getGenreData = () => {
@@ -120,7 +133,6 @@ function removeFromPlaylist(list, track) {
   if (existing) {
     list.related = list.related.filter((f) => f !== track.Key);
   }
-  // speaker.say(`Removing ${track.Title} from ${list.Title}`);
   return saveList(list);
 }
 function createList(Title, track) {
@@ -177,13 +189,30 @@ function playListContainsTrack(audioTrack, list) {
   }
   return false;
 }
+/**  ["Nina Simone/Little Girl Blue/Disc 1 - 04 - Little Girl Blue.ogg.mp3", "Nina Simone", 
+ * "Little Girl Blue", 
+ * "1",
+ *  "04", "Little Girl Blue.ogg", index: 0, input: "Nina Simone/Little Girl Blue/Disc 1 - 04 - Little Girl Blue.ogg.mp3", groups: undefined]
+ * 
+*/
+const ParsedInfo = (str) => {
+  const regex = /([^/]+)\/([^/]+)\/Disc (\d+)[^0-9]+(\d+)\s-\s([^/]+)\.[^.]{3}/.exec(str);
+  const field = ['value', 'artistName', 'albumName', 'discNumber', 'trackNumber', 'Title']
+  const obj = {};
+  if (regex) {
+    field.map((name, i) => obj[name] = regex[i].replace(/\.[^.]{3}/, ''))
+  }
+  return obj;
+}
 
 export {
   endpoint,
   query,
   search,
   send,
-  dataStateChange,
+  save,
+  apple,
+  ParsedInfo,
   getGenreData,
   getPlaylist,
   addToPlaylist,
@@ -192,6 +221,7 @@ export {
   playListContainsTrack,
   createList,
   removeFromPlaylist,
+  dataStateChange,
   PLAYLIST_COLLECTION
 }
 

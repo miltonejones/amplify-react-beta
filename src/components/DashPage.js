@@ -13,7 +13,11 @@ import LinkList from './dash/LinkList';
 import Underline from './underline/Underline';
 import { NavMenu } from './dash/NavMenu';
 import { SongPersistService } from './audio/Persist';
+import { Link } from 'react-router-dom';
 
+const SeeAllLink = (props) => {
+  return <div style={{ float: 'right' }}><Link className='see-all-link' {...props}>See All <Icon>chevron_right</Icon></Link></div>
+}
 
 export default class DashPage extends React.Component {
   constructor(props) {
@@ -46,7 +50,7 @@ export default class DashPage extends React.Component {
   render() {
     const { objects, genreData } = this.state;
     const { open } = this.props;
-    const data = SongPersistService.get();
+    const memory = SongPersistService.get();
     const ft_artist = (a) => `${a.trackCount} tracks`;
     const ft_album = (a) => `${a.artistName}, ${a.trackCount} tracks`;
     let className = ['dash-page-grid'];
@@ -64,7 +68,9 @@ export default class DashPage extends React.Component {
 
           <Grid item xs={8}>
             <Paper className="dash-page-paper recent-carousel-body" >
-              <div className="amplify-card-header"><Icon>schedule</Icon>Recently Added</div>
+              <div className="amplify-card-header"><Icon>schedule</Icon>Recently Added
+              <SeeAllLink to="/show/Library.html" />
+              </div>
               <RecentCarousel open={open} play={playScalar} objects={objects[2]} />
             </Paper>
           </Grid>
@@ -82,13 +88,17 @@ export default class DashPage extends React.Component {
 
           <Grid item xs={8}>
             <Paper className="dash-page-paper" >
-              <div className="amplify-card-header"><Icon>playlist_play</Icon>Playlists</div>
+              <div className="amplify-card-header"><Icon>playlist_play</Icon>Playlists
+              <SeeAllLink to="/list/Playlist.html" />
+              </div>
               <PlaylistBanners />
             </Paper>
-            <Paper className="dash-page-paper" >
-              <div className="amplify-card-header"><Icon>music_note</Icon>Recently Played</div>
-              <SongList play={playScalar} objects={{ data }} />
-            </Paper>
+            {!!memory?.length && (<Paper className="dash-page-paper" >
+              <div className="amplify-card-header"><Icon>music_note</Icon>Recently Played
+              <SeeAllLink to="/recent/Recent.html" />
+              </div>
+              <SongList play={playScalar} objects={{ data: memory }} />
+            </Paper>)}
           </Grid>
 
           <Grid item xs={4}>
@@ -99,14 +109,14 @@ export default class DashPage extends React.Component {
 
 
           <Grid item xs={8}>
-            <Paper className="dash-page-paper" >
-              <div className="amplify-card-header"><Icon>local_offer</Icon>{genreData?.genres?.[0]} Songs</div>
-              <SongList play={playScalar} objects={genreData?.data?.[0]} />
-            </Paper>
-            <Paper className="dash-page-paper" >
-              <div className="amplify-card-header"><Icon>local_offer</Icon>{genreData?.genres?.[1]} Songs</div>
-              <SongList play={playScalar} objects={genreData?.data?.[1]} />
-            </Paper>
+            {genreData?.genres?.map((genre, index) => (
+              <Paper className="dash-page-paper" key={index}>
+                <div className="amplify-card-header"><Icon>local_offer</Icon>{genre} Songs
+              <SeeAllLink to={'/show/Genre.html/' + genre} />
+                </div>
+                <SongList play={playScalar} objects={genreData?.data?.[index]} />
+              </Paper>
+            ))}
           </Grid>
 
           <Grid item xs={4}>

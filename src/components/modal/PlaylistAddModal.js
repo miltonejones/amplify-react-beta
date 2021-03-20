@@ -72,10 +72,10 @@ export default function PlaylistAddDialog(props) {
       >
         <DialogTitle id="alert-dialog-title">Add <Underline innerText={track?.Title} dark={true} /> to Playlist(s)</DialogTitle>
         <DialogContent classes={{ root: classes.outer }}>
-          <div class="playlist-add-grid">
+          <div className="playlist-add-grid">
             {
               (group && group.map && group.map((c, i) => (
-                <div class="playlist-add-item no-wrap" key={i}><FormControlLabel
+                <div className="playlist-add-item no-wrap" key={i}><FormControlLabel
                   control={
                     <Switch
                       name="checkedB"

@@ -39,6 +39,8 @@
 .empty-song-list .genre-song-item .genre-song-item-artist,
 .genre-song-list .genre-song-item .genre-song-item-artist {
   grid-area: artist;
+  color: gray;
+  font-size: 0.9rem;
 }
 .empty-song-list .genre-song-item .genre-song-item-title,
 .genre-song-list .genre-song-item .genre-song-item-title {
@@ -47,6 +49,8 @@
 .empty-song-list .genre-song-item .genre-song-item-album,
 .genre-song-list .genre-song-item .genre-song-item-album {
   grid-area: album;
+  color: gray;
+  font-size: 0.9rem;
 }
 .empty-song-list .genre-song-item.active .genre-song-item-title,
 .genre-song-list .genre-song-item.active .genre-song-item-title {

@@ -45,7 +45,6 @@ class PlayIcon extends React.Component {
   componentDidMount() {
     this.beginSub = playBegin.subscribe(state => {
       const playing = state.source?.indexOf(this.props.path) > -1 && !this.props.immutable;
-      console.log(state, { path: this.props.path })
       this.setState({ playing })
     });
     this.endSub = playEnd.subscribe(ready => {

@@ -81,6 +81,7 @@ export default class ArtistList extends React.Component {
       if (s.isActive) {
         s.isASC = -s.isASC
       }
+      return s;
     });
     artists = this.sortBy(sorters, artists);
     const items = artists.slice(0, 100);
@@ -136,11 +137,11 @@ export default class ArtistList extends React.Component {
     return (
       <div>
 
-        <div class="upper-menu">
-          <div class="upper-menu-left">
+        <div className="upper-menu">
+          <div className="upper-menu-left">
             <PageBreadcrumbs open={this.props.open} crumb={crumb} />
           </div>
-          <div class="upper-menu-right">
+          <div className="upper-menu-right">
             {sorter?.length && <SortMenu update={this.sortUpdate} items={sorter} />}
           </div>
         </div>
@@ -151,7 +152,7 @@ export default class ArtistList extends React.Component {
             next={this.fetchMoreData}
             scrollableTarget="thumbnail-view"
             hasMore
-            loader={<h4>Loading...</h4>}
+
           >
             {items.map((artist, k) => <Thumbnail href={href} type={this.cacheType} artist={artist} key={k} />)}
           </InfiniteScroll>

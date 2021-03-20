@@ -27,7 +27,7 @@ body.light {
 :root {
   --carousel-title-font: 2rem;
   --carousel-caption-font: 1rem;
-  --carousel-line-height: 20px;
+  --carousel-line-height: 28px;
   --carousel-max-height: 240px;
 }
 .nav-list-icon {
@@ -41,6 +41,9 @@ body.light {
 .App.home {
   overflow: scroll;
   outline: solid 1px rebeccapurple;
+}
+a {
+  cursor: default;
 }
 img.toolbar-logo {
   width: 40px;
@@ -172,6 +175,17 @@ img.toolbar-logo {
   margin: 72px 20px 72px 256px;
 }
 
+.see-all-link {
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.material-icons {
+  vertical-align: middle;
+}
+
+.icon-button-no-padding {
+  padding: 0 !important;
+}
 .dash-page-paper {
   padding: 20px;
   color: #333;
@@ -187,6 +201,14 @@ img.toolbar-logo {
 .infinite-scroll-component {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 4px;
+}
+
+.classes-batch-outer {
+  width: 960px;
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  /* border: dotted 1px red; */
 }
 
 .list-view.open,
@@ -196,7 +218,8 @@ img.toolbar-logo {
 }
 
 .thumbnail-view .thumbnail-item {
-  height: 240px;
+  height: 226px;
+  margin-top: 12px;
 }
 
 .thumbnail-view .thumbnail-item img {

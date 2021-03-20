@@ -3,22 +3,12 @@ import OwlCarousel from 'react-owl-carousel';
 import 'owl.carousel/dist/assets/owl.carousel.css';
 import 'owl.carousel/dist/assets/owl.theme.default.css';
 import './owl.css';
-import { listViewOnClick$ } from '../../util/Events';
+import { playbackRequest$ } from '../../util/Events';
 import { query } from '../../AmplifyData';
 import { sortObjects } from '../../util/State';
-import Tooltip from '@material-ui/core/Tooltip';
-import { withStyles } from '@material-ui/core/styles';
 import { LinearProgress, Typography } from '@material-ui/core';
+import { HtmlTooltip } from '../HtmlTooltip';
 
-const HtmlTooltip = withStyles((theme) => ({
-  tooltip: {
-    backgroundColor: '#f5f5f9',
-    color: 'rgba(0, 0, 0, 0.87)',
-    maxWidth: 220,
-    fontSize: theme.typography.pxToRem(12),
-    border: '1px solid #dadde9',
-  },
-}))(Tooltip);
 
 const downloadCollection = (type, id) => () => {
   query(type, id).then(res => {
@@ -28,7 +18,7 @@ const downloadCollection = (type, id) => () => {
     const index = 0;
     const track = items[index];
 
-    listViewOnClick$.next({ items, track, index });
+    playbackRequest$.next({ items, track, index });
   })
 }
 

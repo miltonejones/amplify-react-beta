@@ -1,7 +1,7 @@
 import React from 'react';
 import { getPlaylist, query } from '../../AmplifyData';
-import { listViewOnClick$ } from '../../util/Events';
-import { generateKey } from '../../util/State';
+import { playbackRequest$ } from '../../util/Events';
+import { generateKey, randomize } from '../../util/State';
 import './banner.css';
 
 export default class PlaylistBanners extends React.Component {
@@ -21,7 +21,7 @@ export default class PlaylistBanners extends React.Component {
       const index = 0;
       const track = items[index];
 
-      listViewOnClick$.next({ items, track, index });
+      playbackRequest$.next({ items, track, index });
     })
   }
 
@@ -30,7 +30,7 @@ export default class PlaylistBanners extends React.Component {
   loadComponentList() {
     query('playlist')
       .then(res => {
-        const objects = res.data.filter(f => !!f.image).slice(0, 6);
+        const objects = randomize(res.data.filter(f => !!f.image)).slice(0, 6);
         objects.map(f => f.listKey = generateKey(f.Title));
         this.setState({ objects });
       });

@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Icon } from '@material-ui/core';
 
-
-class SortMenu extends React.Component {
+class SortMenu extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -39,7 +38,7 @@ class SortMenu extends React.Component {
   }
   render() {
     const { open, anchorEl } = this.state;
-    const { items, update } = this.props;
+    const { items } = this.props;
     const sorter = items?.filter(s => s.isActive)[0];
 
     return !items ? (<b>loading...</b>) : (
@@ -67,5 +66,3 @@ class SortMenu extends React.Component {
 export {
   SortMenu
 }
-
-

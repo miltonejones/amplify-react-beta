@@ -7,7 +7,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { Badge, Icon, makeStyles } from '@material-ui/core';
 import Underline from '../underline/Underline';
 import { DataGrid } from '@material-ui/data-grid';
-import { listViewOnClick$ } from '../../util/Events';
+import { playbackRequest$ } from '../../util/Events';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -61,7 +61,7 @@ export default function QueueDialog(props) {
     const track = params?.row;
     const index = items.indexOf(track);
 
-    listViewOnClick$.next({ items, track, index });
+    playbackRequest$.next({ items, track, index });
   }
 
   return (

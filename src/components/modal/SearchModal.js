@@ -15,7 +15,7 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { AccordionActions, Avatar, List, ListItem, ListItemAvatar, ListItemText } from '@material-ui/core';
 import { useHistory } from "react-router-dom";
-import { listViewOnClick$ } from '../../util/Events';
+import { playbackRequest$ } from '../../util/Events';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -186,7 +186,7 @@ function SimpleAccordion(props) {
 
     query('tune', item.Key).then(res => {
       const track = res.data;
-      listViewOnClick$.next({ items: [track], track, index: 0 });
+      playbackRequest$.next({ items: [track], track, index: 0 });
     });
   }
 

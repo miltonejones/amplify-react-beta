@@ -1,10 +1,7 @@
 import { Subject } from 'rxjs';
 
-
 class AudioAnalyser {
-
   eqOutput$ = new Subject();
-
   context = new AudioContext();
   running = true;
   started = false;
@@ -14,10 +11,8 @@ class AudioAnalyser {
   }
 
   configure(audio, hue, width) {
-    // audio.crossOrigin = "anonymous";
     audio.addEventListener("error", e => {
-      // alert("An error occured");
-
+      console.warn("An error occured", { e });
     });
     this.audio = audio;
     this.width = width;
@@ -61,8 +56,7 @@ export {
   Analyser
 }
 
-
-export function currentBarGraph(
+function currentBarGraph(
   analyser,
   width = 400,
   fftSize = 64,
@@ -74,9 +68,7 @@ export function currentBarGraph(
   return frequencyCoords(dataArray, bufferLength, width / bufferLength, factor);
 }
 
-
-
-export function frequencyCoords(dataArray, bufferLength, barWidth, factor) {
+function frequencyCoords(dataArray, bufferLength, barWidth, factor) {
   const coords = [];
   let barHeight;
   let x = 0;
@@ -90,7 +82,7 @@ export function frequencyCoords(dataArray, bufferLength, barWidth, factor) {
       x,
       actualHeight,
       barWidth
-    })
+    });
     x += barWidth + 1;
   }
   return coords;

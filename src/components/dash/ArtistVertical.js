@@ -7,7 +7,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, Icon, ListItemAvatar } from '@material-ui/core';
 import { query } from '../../AmplifyData';
-import { listViewOnClick$ } from '../../util/Events';
+import { playbackRequest$ } from '../../util/Events';
 import { sortObjects } from '../../util/State';
 
 const useStyles = makeStyles((theme) => ({
@@ -46,7 +46,7 @@ export default function ArtistVertical(props) {
       const index = 0;
       const track = items[index];
 
-      listViewOnClick$.next({ items, track, index });
+      playbackRequest$.next({ items, track, index });
     })
   }
   // 

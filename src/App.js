@@ -30,22 +30,21 @@ import SearchDialog from './components/modal/SearchModal';
 import { WaitIcon } from './components/WaitIcon';
 
 function DisplayFindView(props) {
-  let { type, param } = useParams();
-  if (type === 'songs') {
-    return (<TrackListView type={type} param={param} open={props.open} />);
+  const params = useParams();
+  if (params.type === 'songs') {
+    return (<TrackListView {...params} {...props} />);
   }
-  return (<ArtistList type={type} param={param} open={props.open} />);
+  return (<ArtistList {...params} {...props} />);
 }
 
-
 function DisplayThumbView(props) {
-  let { type } = useParams();
-  return (<ArtistList type={type} open={props.open} />);
+  const params = useParams();
+  return (<ArtistList {...params} {...props} />);
 }
 
 function DisplayListView(props) {
-  let { type, id } = useParams();
-  return (<TrackListView type={type} open={props.open} id={id} />);
+  const params = useParams();
+  return (<TrackListView {...params} {...props} />);
 }
 
 
@@ -162,8 +161,9 @@ function App() {
         </Drawer>
 
         {/* primary workspace */}
-        <div class="amplify-main-workspace">
+        <div className="amplify-main-workspace">
           <Switch>
+            <Route path="/recent/:type" children={<DisplayListView recent open={open} />} />
             <Route path="/find/:type/:param" children={<DisplayFindView open={open} />} />
             <Route path="/list/:type" children={<DisplayThumbView open={open} />} />
             <Route path="/show/:type/:id" children={<DisplayListView open={open} />} />
