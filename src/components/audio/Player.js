@@ -241,7 +241,7 @@ export default class AudioPlayer extends React.Component {
                 </React.Fragment>
               }
             >
-              <IconButton onClick={this.prevTrack}
+              <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={this.prevTrack}
                 edge="start"
                 color="inherit"
                 disabled={first}
@@ -261,7 +261,7 @@ export default class AudioPlayer extends React.Component {
                 </React.Fragment>
               }
             >
-              <IconButton onClick={this.nextTrack}
+              <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={this.nextTrack}
                 edge="start"
                 color="inherit"
                 disabled={last}
@@ -288,7 +288,7 @@ export default class AudioPlayer extends React.Component {
 
             <HtmlTooltip
               title="close player" >
-              <IconButton onClick={this.close}
+              <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={this.close}
                 edge="start"
                 color="inherit"
                 aria-label="open drawer" >
@@ -298,7 +298,7 @@ export default class AudioPlayer extends React.Component {
 
             <HtmlTooltip
               title="more options..." >
-              <IconButton onClick={() => openMenuRequest$.next(track)}
+              <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => openMenuRequest$.next(track)}
                 edge="start"
                 color="inherit"
                 aria-label="open drawer" >

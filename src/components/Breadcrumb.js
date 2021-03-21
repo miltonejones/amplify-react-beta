@@ -35,6 +35,9 @@ const useStyles = makeStyles((theme) => ({
     width: 20,
     height: 20,
   },
+  noicon: {
+    margin: 0,
+  },
 }));
 
 
@@ -57,7 +60,7 @@ const PageBreadcrumbs = (props) => {
           to={crumb.data.prefix + crumb.path}
           className={classes.link}
         >
-          <Icon>{crumb.data.icon}</Icon>
+          <Icon className={classes.noicon}>{crumb.data.icon}</Icon>
           {crumb.data.label}
         </Link>)
       }
