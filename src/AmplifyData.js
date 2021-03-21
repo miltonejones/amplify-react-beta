@@ -17,12 +17,13 @@ const group = (type, keys) => {
     files.then(res => {
       res.map(datum => {
         const { data } = datum;
-        console.log(data)
         out.push(...data.related)
+        return data;
       });
       out.map(track => {
         track[`${type}Fk`] = id;
         track[`${type}Name`] = null;
+        return track;
       })
       console.log(out)
       saveTracks(out).then(callback);

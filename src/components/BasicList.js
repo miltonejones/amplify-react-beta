@@ -193,6 +193,7 @@ export default class ArtistList extends React.Component {
           >
             {items.map((artist, k) => <Thumbnail key={k + href} select={a => this.selectItem(a)} editing={editing} href={href} type={this.cacheType} artist={artist} />)}
           </InfiniteScroll>
+
         </div>
 
       </div>

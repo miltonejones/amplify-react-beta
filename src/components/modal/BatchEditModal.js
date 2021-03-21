@@ -7,7 +7,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Underline from '../underline/Underline';
 import TrackEditCard from '../TrackEditCard';
 import ModalTrackList from './ModalTrackList';
-import { ParsedInfo, search, save, send, apple, commit, saveTracks } from '../../AmplifyData';
+import { ParsedInfo, search, save, send, apple, saveTracks } from '../../AmplifyData';
 import { AppleConvert } from '../../util/AppleConvert';
 
 const attachData = (suggested, field, type, key) => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import './App.css';
 import IconButton from '@material-ui/core/IconButton';
@@ -57,7 +57,6 @@ function App() {
   const [snackMenuOpen, setMenu] = React.useState(false);
   const [light, setLight] = React.useState(false);
   const [editedTrack, setEditedTrack] = React.useState({});
-
   const classes = useStyles();
 
   const handleDrawerOpen = () => {
@@ -97,9 +96,16 @@ function App() {
     setPlaying(playingNow);
   }
 
-  openMenuRequest.subscribe(track => {
-    setMenu(true);
-    setEditedTrack(track);
+  useEffect(() => {
+    console.log('subscribing')
+    const sub = openMenuRequest.subscribe(track => {
+      setMenu(true);
+      setEditedTrack(track);
+    });
+    return () => {
+      console.log('unsubscribing')
+      sub.unsubscribe();
+    }
   });
 
   AppState.LOADED = true;
@@ -147,7 +153,7 @@ function App() {
             </div>
             <div className={classes.sectionDesktop}>
               <WaitIcon />
-              {/* <IconButton
+              <IconButton
                 onClick={handleLightClick}
                 edge="end"
                 aria-label="account of current user"
@@ -155,7 +161,7 @@ function App() {
                 color="inherit"
               >
                 <Icon>light_mode</Icon>
-              </IconButton> */}
+              </IconButton>
             </div>
           </Toolbar>
         </AppBar>

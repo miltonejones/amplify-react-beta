@@ -5,7 +5,7 @@ import { playbackRequest$, openMenuRequest$, playBegin, playEnd } from "../util/
 import { AppState, mmss, randomize, sortObjects } from '../util/State';
 import Icon from '@material-ui/core/Icon';
 import { compareTrackToLists, getPlaylist, query, search } from '../AmplifyData';
-import { ARTIST_API_ADDRESS } from '../Constants';
+import { ARTIST_API_ADDRESS, DEFAULT_HREF } from '../Constants';
 import { createCrumb, PageBreadcrumbs } from './Breadcrumb';
 import PlaylistAddDialog from './modal/PlaylistAddModal';
 import { Avatar, IconButton, Typography } from '@material-ui/core';
@@ -13,6 +13,7 @@ import BatchEditDialog from './modal/BatchEditModal';
 import { SongPersistService } from './audio/Persist';
 import { TextOrLink } from './TextOrLink';
 import { HtmlTooltip } from './HtmlTooltip';
+import DownloadDialog from './modal/ImportModal';
 
 
 export default class TrackListView extends React.Component {
@@ -206,6 +207,7 @@ export default class TrackListView extends React.Component {
             columns={cols}
             pageSize={100} />
         </div>
+        <DownloadDialog refresh={() => this.loadComponentList()} />
       </div>
     )
   }
@@ -237,7 +239,7 @@ const TitleCell = ({ track }) => {
           </div>
         </React.Fragment>
       }>
-      <a>{heart ? <Icon style={{ color: 'red' }}>favorite</Icon> : <i />}{value}</a>
+      <a href={DEFAULT_HREF}>{heart ? <Icon style={{ color: 'red' }}>favorite</Icon> : <i />}{value}</a>
     </HtmlTooltip>
   );
 }

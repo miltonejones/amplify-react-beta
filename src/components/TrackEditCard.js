@@ -7,6 +7,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import DataInput from './DataInput';
+import { DEFAULT_HREF } from '../Constants';
 import { Avatar, CardHeader, Collapse, Icon, IconButton, InputBase, Tooltip } from '@material-ui/core';
 
 const useStyles = makeStyles({
@@ -168,7 +169,7 @@ const TrackNumberInput = ({ track, field }) => {
     console.log({ keyCode })
   }
   if (!editing) {
-    return <a onClick={() => setEditing(true)}>{track[field] || '---'}</a>
+    return <a href={DEFAULT_HREF} onClick={() => setEditing(true)}>{track[field] || '---'}</a>
   }
   return (
     <InputBase className={classes.sm} onKeyUp={handleChange} placeholder={field} defaultValue={track[field]} />
