@@ -1,6 +1,6 @@
 import React from 'react';
 import { CLOUD_FRONT_URL, DEFAULT_IMAGE } from "../../Constants";
-import { playbackRequest, playBegin$, playEnd$ } from "../../util/Events";
+import { addQueueRequest, openMenuRequest$, playbackRequest, playBegin$, playEnd$ } from "../../util/Events";
 import { Analyser } from "./AudioAnalyser";
 import ProgressLabel from "./ProgressLabel";
 import './Player.css';
@@ -17,7 +17,7 @@ import { AppState } from '../../util/State';
 
 
 export default class AudioPlayer extends React.Component {
-  cacheType = '';
+  subscriptions = [];
 
   constructor(props) {
     super(props);
@@ -30,7 +30,18 @@ export default class AudioPlayer extends React.Component {
     this.close = this.close.bind(this);
     this.handleImageClick = this.handleImageClick.bind(this);
   }
-
+  splice(track) {
+    const { index, items } = this.state;
+    if (index > -1) {
+      items.splice(index + 1, 0, track);
+      this.setState({
+        ...this.state,
+        items,
+        before: this.prev(),
+        after: this.next()
+      });
+    }
+  }
   next(i = 1) {
     const index = this.state.index + i;
     if (index < this.state.items?.length && index > -1) {
@@ -84,6 +95,8 @@ export default class AudioPlayer extends React.Component {
     const count = compareTrackToLists(this.state.track);
     this.setState({
       ...this.state,
+      index,
+      length: this.state.items?.length,
       before: this.prev(),
       after: this.next(),
       first, last, count
@@ -117,6 +130,7 @@ export default class AudioPlayer extends React.Component {
     })
     this.state.audioElement.pause();
     this.props.notify(false);
+    playEnd$.next(this.state);
   }
 
   prevTrack() {
@@ -152,10 +166,12 @@ export default class AudioPlayer extends React.Component {
       duration, currentTime, progress
     });
   }
+  componentDidUpdate() {
+    AppState.SOURCE = this.state.source;
+  }
 
   componentWillUnmount() {
-    this.subscription.unsubscribe();
-    this.sub.unsubscribe();
+    this.subscriptions.map(sub => sub.unsubscribe());
   }
 
   handleImageClick() {
@@ -167,21 +183,23 @@ export default class AudioPlayer extends React.Component {
   }
 
   componentDidMount() {
-    this.subscription = playbackRequest.subscribe(opts => {
-      // const url = play(text);
-      // this.setState({ url });
-      this.setQueue(opts);
-    });
-
-    this.sub = dataStateChange.subscribe(ready => {
-      if (ready && this.state.track) {
-        const count = compareTrackToLists(this.state.track);
-        this.setState({
-          ...this.state,
-          count
-        })
-      }
-    });
+    this.subscriptions.push(
+      playbackRequest.subscribe(opts => {
+        this.setQueue(opts);
+      }),
+      addQueueRequest.subscribe(track => {
+        this.splice(track);
+      }),
+      dataStateChange.subscribe(ready => {
+        if (ready && this.state.track) {
+          const count = compareTrackToLists(this.state.track);
+          this.setState({
+            ...this.state,
+            count
+          })
+        }
+      })
+    );
     const audio = document.querySelector('audio');
     this.attach(audio);
   }
@@ -218,8 +236,8 @@ export default class AudioPlayer extends React.Component {
                 <React.Fragment>
                   previous track
                   <Typography color="inherit">{before?.Title}</Typography>
-                  <div><em>artist</em> <b>{before?.artistName}</b></div>
-                  <div><em>album</em> <b>{before?.albumName}</b></div>
+                  <div><label class="tooltip-label">artist</label> <b>{before?.artistName}</b></div>
+                  <div><label class="tooltip-label">album</label> <b>{before?.albumName}</b></div>
                 </React.Fragment>
               }
             >
@@ -238,8 +256,8 @@ export default class AudioPlayer extends React.Component {
                 <React.Fragment>
                   next track
                   <Typography color="inherit">{after?.Title}</Typography>
-                  <div><em>artist</em> <b>{after?.artistName}</b></div>
-                  <div><em>album</em> <b>{after?.albumName}</b></div>
+                  <div><label class="tooltip-label">artist</label> <b>{after?.artistName}</b></div>
+                  <div><label class="tooltip-label">album</label> <b>{after?.albumName}</b></div>
                 </React.Fragment>
               }
             >
@@ -269,13 +287,22 @@ export default class AudioPlayer extends React.Component {
             <QueueDialog items={items} />
 
             <HtmlTooltip
-              title="close player"
-            >
+              title="close player" >
               <IconButton onClick={this.close}
                 edge="start"
                 color="inherit"
                 aria-label="open drawer" >
                 <Icon>close</Icon>
+              </IconButton>
+            </HtmlTooltip>
+
+            <HtmlTooltip
+              title="more options..." >
+              <IconButton onClick={() => openMenuRequest$.next(track)}
+                edge="start"
+                color="inherit"
+                aria-label="open drawer" >
+                <Icon>more_vert</Icon>
               </IconButton>
             </HtmlTooltip>
 

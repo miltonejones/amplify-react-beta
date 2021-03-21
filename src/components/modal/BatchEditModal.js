@@ -7,7 +7,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Underline from '../underline/Underline';
 import TrackEditCard from '../TrackEditCard';
 import ModalTrackList from './ModalTrackList';
-import { ParsedInfo, search, save, send, apple } from '../../AmplifyData';
+import { ParsedInfo, search, save, send, apple, commit, saveTracks } from '../../AmplifyData';
 import { AppleConvert } from '../../util/AppleConvert';
 
 const attachData = (suggested, field, type, key) => {
@@ -32,14 +32,6 @@ const attachData = (suggested, field, type, key) => {
       return;
     }
     callback(suggested)
-  })
-}
-
-const commit = (track) => {
-  return new Promise(callback => {
-    const up = Object.assign({}, track);
-    up.albumName = up.artistName = up.artist = null;
-    save(up).then(callback);
   })
 }
 
@@ -134,18 +126,8 @@ export default class BatchEditDialog extends React.Component {
     });
     this.setState({ ...this.state, tracks })
   }
-  saveTracks() {
-    const { tracks } = this.props;
-    return new Promise(callback => {
-      const next = () => {
-        if (!tracks.length) return callback();
-        commit(tracks.pop()).then(next);
-      }
-      next();
-    })
-  }
   saveTrack(track, all) {
-    if (all) return this.saveTracks().then(() => this.props.refresh());
+    if (all) return saveTracks(this.props.tracks).then(() => this.props.refresh());
     const up = Object.assign({}, track);
     up.albumName = up.artistName = null;
     save(up).then(() => this.props.refresh());

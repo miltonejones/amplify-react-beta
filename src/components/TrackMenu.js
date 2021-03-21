@@ -6,6 +6,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Link } from 'react-router-dom';
+import { addQueueRequest$ } from '../util/Events';
 
 function ListItemLink(props) {
   const { icon, primary, secondary, to } = props;
@@ -29,29 +30,29 @@ function ListItemLink(props) {
   );
 }
 
-const TrackMenu = (props) => {
+const TrackMenu = ({ track }) => {
 
   const nodes = [
     {
       label: 'View Artist',
-      when: !!props.track?.artistFk,
-      footer: props.track?.artistName,
+      when: !!track?.artistFk,
+      footer: track?.artistName,
       icon: 'people',
-      path: `/show/Artist.html/${props.track.artistFk}`
+      path: `/show/Artist.html/${track.artistFk}`
     },
     {
       label: 'View Album',
-      when: !!props.track?.albumFk,
-      footer: props.track?.albumName,
+      when: !!track?.albumFk,
+      footer: track?.albumName,
       icon: 'album',
-      path: `/show/Album.html/${props.track.albumFk}`
+      path: `/show/Album.html/${track.albumFk}`
     },
     {
       label: 'View Genre',
-      when: !!props.track?.genreKey,
-      footer: props.track?.Genre,
+      when: !!track?.genreKey,
+      footer: track?.Genre,
       icon: 'local_offer',
-      path: `/show/Genre.html/${props.track.genreKey}`
+      path: `/show/Genre.html/${track.genreKey}`
     },
   ].filter(f => f.when);
 
@@ -62,6 +63,14 @@ const TrackMenu = (props) => {
           <ListItemLink icon={node.icon} key={node.label} secondary={node.footer} primary={node.label} to={node.path} />
         )
       })}
+      <ListItem onClick={() => addQueueRequest$.next(track)}>
+        <ListItemAvatar>
+          <Avatar>
+            <Icon>add</Icon>
+          </Avatar>
+        </ListItemAvatar>
+        <ListItemText primary="Add to queue" />
+      </ListItem>
     </List>
   )
 }

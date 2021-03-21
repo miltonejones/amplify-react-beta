@@ -1,6 +1,7 @@
 const AppState = {
   LOADED: false,
   PLAYING: false,
+  SOURCE: null,
   TRACK: {},
   LOCALE: []
 };

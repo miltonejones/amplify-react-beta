@@ -1,4 +1,4 @@
-body {
+.App {
   --main-link-color: #222;
   --gray-text-color: #667;
   --accent-shadow-color: rgba(200, 200, 200, 0.4);
@@ -6,8 +6,8 @@ body {
   --line-item-normal-color: white;
   --line-item-active-color: antiquewhite;
   --accent-text-color: rgb(255, 0, 128);
-  --dark-window-color: #1f3d55;
-  --light-window-color: #406172;
+  --dark-window-color: #3f51b5;
+  --light-window-color: #3f51b5;
   --hilite-text-backcolor: #ffd800;
   --hilite-text-forecolor: #37a;
   --row-even-color: #eef4fe;
@@ -17,7 +17,7 @@ body {
   --sort-menu-width: inherit;
 }
 
-body.light {
+.App.light {
   --dark-window-color: antiquewhite;
   --light-window-color: whitesmoke;
   --toolbar-text-color: #222;
@@ -42,6 +42,11 @@ body.light {
   overflow: scroll;
   outline: solid 1px rebeccapurple;
 }
+.MuiAppBar-colorPrimary {
+  background-color: var(--dark-window-color) !important;
+  color: var(--toolbar-text-color) !important;
+}
+
 a {
   cursor: default;
 }
@@ -115,6 +120,7 @@ img.toolbar-logo {
 .upper-menu-right {
   float: right;
   margin: 0 20px;
+  white-space: nowrap;
 }
 
 .app-workspace {
@@ -185,6 +191,7 @@ img.toolbar-logo {
 
 .icon-button-no-padding {
   padding: 0 !important;
+  display: inline-block;
 }
 .dash-page-paper {
   padding: 20px;
@@ -202,6 +209,25 @@ img.toolbar-logo {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 4px;
+}
+
+/* .tooltip-block {
+  outline: solid 1px rgb(255, 0, 128);
+} */
+
+.tooltip-line {
+  padding: 0 0;
+  margin: 0 0;
+  font-size: 0.9rem;
+}
+
+.tooltip-label {
+  padding: 0 0;
+  margin: 0 0;
+  text-transform: uppercase;
+  width: 60px;
+  text-align: right;
+  color: gray;
 }
 
 .classes-batch-outer {
@@ -225,6 +251,14 @@ img.toolbar-logo {
 .thumbnail-view .thumbnail-item img {
   width: 180px;
   height: 180px;
+}
+
+.thumbnail-view .thumbnail-item.editing img {
+  outline: dotted 2px red;
+}
+
+.thumbnail-view .thumbnail-item.selected img {
+  outline: solid 3px #37a;
 }
 
 .caption-title-line {
@@ -263,7 +297,7 @@ img.toolbar-logo {
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: var(--light-window-color);
   min-height: 100vh;
   display: flex;
   flex-direction: column;

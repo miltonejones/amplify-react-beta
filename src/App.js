@@ -20,7 +20,7 @@ import ArtistList from './components/BasicList';
 import TrackListView from "./components/BasicView";
 import AudioPlayer from './components/audio/Player';
 import Underline from './components/underline/Underline';
-import { listViewMenuClick } from "./util/Events";
+import { openMenuRequest } from "./util/Events";
 import { AppState } from "./util/State";
 import { TrackMenu } from './components/TrackMenu';
 import DashPage from './components/DashPage';
@@ -28,6 +28,7 @@ import { APP_NAME } from './Constants';
 import NavPlayList from './components/NavPlayList';
 import SearchDialog from './components/modal/SearchModal';
 import { WaitIcon } from './components/WaitIcon';
+import Notifier from './components/Notifier';
 
 function DisplayFindView(props) {
   const params = useParams();
@@ -54,6 +55,7 @@ function App() {
   const [find, setFind] = React.useState({ open: false });
   const [playing, setPlaying] = React.useState(AppState.PLAYING);
   const [snackMenuOpen, setMenu] = React.useState(false);
+  const [light, setLight] = React.useState(false);
   const [editedTrack, setEditedTrack] = React.useState({});
 
   const classes = useStyles();
@@ -70,6 +72,9 @@ function App() {
   };
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+  const handleLightClick = () => {
+    setLight(!light);
   };
   const handleOops = () => {
     setMenu(false);
@@ -92,19 +97,20 @@ function App() {
     setPlaying(playingNow);
   }
 
-  listViewMenuClick.subscribe(track => {
+  openMenuRequest.subscribe(track => {
     setMenu(true);
     setEditedTrack(track);
   });
 
   AppState.LOADED = true;
   return (
-    <div className={['App', home ? 'home' : ''].join(' ')}>
+    <div className={['App', light ? 'light' : '', home ? 'home' : ''].join(' ')}>
       <Router>
 
         {/* toolbar element */}
         <AppBar
           position="fixed"
+          classes={{ root: 'toolbar-root' }}
           className={clsx(classes.appBar, {
             [classes.appBarShift]: open,
           })}>
@@ -141,6 +147,15 @@ function App() {
             </div>
             <div className={classes.sectionDesktop}>
               <WaitIcon />
+              {/* <IconButton
+                onClick={handleLightClick}
+                edge="end"
+                aria-label="account of current user"
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <Icon>light_mode</Icon>
+              </IconButton> */}
             </div>
           </Toolbar>
         </AppBar>
@@ -178,6 +193,8 @@ function App() {
           <TrackMenu track={editedTrack} />
         </Drawer>
       </Router>
+
+      <Notifier />
 
       {/* audio player */}
       <Drawer

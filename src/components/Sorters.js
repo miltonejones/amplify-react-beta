@@ -10,7 +10,7 @@ const ThumbViewSorters = {
     {
       Label: 'Artist',
       Field: 'artistName',
-      isNaN: !1,
+      isNaN: !0,
       isASC: -1
     },
     {

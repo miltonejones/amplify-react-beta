@@ -9,6 +9,34 @@ let PLAYLIST_COLLECTION = [];
 const dataStateChange$ = new Subject();
 const dataStateChange = dataStateChange$.asObservable();
 
+const group = (type, keys) => {
+  return new Promise(callback => {
+    const files = Promise.all(keys.map(id => query(type, id)));
+    const id = keys[0];
+    const out = [];
+    files.then(res => {
+      res.map(datum => {
+        const { data } = datum;
+        console.log(data)
+        out.push(...data.related)
+      });
+      out.map(track => {
+        track[`${type}Fk`] = id;
+        track[`${type}Name`] = null;
+      })
+      console.log(out)
+      saveTracks(out).then(callback);
+    });
+  })
+}
+
+const commit = (track) => {
+  return new Promise(callback => {
+    const up = Object.assign({}, track);
+    up.albumName = up.artistName = up.artist = null;
+    save(up).then(callback);
+  })
+}
 
 const endpoint = (type, id) => {
   const address = [`${ARTIST_API_ADDRESS}${type}`];
@@ -204,11 +232,22 @@ const ParsedInfo = (str) => {
   }
   return obj;
 }
-
+const saveTracks = (tracks) => {
+  return new Promise(callback => {
+    const next = () => {
+      if (!tracks.length) return callback();
+      commit(tracks.pop()).then(next);
+    }
+    next();
+  })
+}
 export {
   endpoint,
   query,
   search,
+  commit,
+  saveTracks,
+  group,
   send,
   save,
   apple,

@@ -42,7 +42,7 @@ class SortMenu extends Component {
     const sorter = items?.filter(s => s.isActive)[0];
 
     return !items ? (<b>loading...</b>) : (
-      <div>
+      <div style={{ display: 'inline-block' }}>
         <Button aria-controls="simple-menu" aria-haspopup="true" onClick={this.handleClick}>
           <Icon>sort_by_alpha</Icon>  Sorted By {sorter?.Label}
         </Button>

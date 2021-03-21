@@ -76,7 +76,7 @@ class RecentCarousel extends Component {
             title={
               <React.Fragment>
                 <Typography color="inherit">{artist.Title}</Typography>
-                <em>artist</em> <b>{artist.artistName}</b>
+                <label class="tooltip-label">artist</label> <b>{artist.artistName}</b>
               </React.Fragment>
             }
           >

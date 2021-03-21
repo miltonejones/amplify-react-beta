@@ -1,12 +1,14 @@
 import { Subject } from 'rxjs';
 
 const playbackRequest$ = new Subject();
-const listViewMenuClick$ = new Subject();
+const openMenuRequest$ = new Subject();
+const addQueueRequest$ = new Subject();
 const playBegin$ = new Subject();
 const playEnd$ = new Subject();
 
 const playbackRequest = playbackRequest$.asObservable();
-const listViewMenuClick = listViewMenuClick$.asObservable();
+const openMenuRequest = openMenuRequest$.asObservable();
+const addQueueRequest = addQueueRequest$.asObservable();
 const playBegin = playBegin$.asObservable();
 const playEnd = playEnd$.asObservable();
 
@@ -17,12 +19,14 @@ const playScalar = (track) => () => {
 
 export {
   playbackRequest$,
+  openMenuRequest$,
+  addQueueRequest$,
+  addQueueRequest,
   playbackRequest,
-  listViewMenuClick$,
-  listViewMenuClick,
-  playScalar,
-  playBegin,
+  openMenuRequest,
   playBegin$,
+  playBegin,
   playEnd,
-  playEnd$
+  playEnd$,
+  playScalar
 }

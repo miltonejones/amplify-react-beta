@@ -1,17 +1,18 @@
 
 import React from 'react';
 import { DataGrid } from '@material-ui/data-grid';
-import { playbackRequest$, listViewMenuClick$, playBegin, playEnd } from "../util/Events";
-import { AppState, mmss, sortObjects } from '../util/State';
+import { playbackRequest$, openMenuRequest$, playBegin, playEnd } from "../util/Events";
+import { AppState, mmss, randomize, sortObjects } from '../util/State';
 import Icon from '@material-ui/core/Icon';
 import { compareTrackToLists, getPlaylist, query, search } from '../AmplifyData';
 import { ARTIST_API_ADDRESS } from '../Constants';
 import { createCrumb, PageBreadcrumbs } from './Breadcrumb';
 import PlaylistAddDialog from './modal/PlaylistAddModal';
-import { IconButton } from '@material-ui/core';
+import { Avatar, IconButton, Typography } from '@material-ui/core';
 import BatchEditDialog from './modal/BatchEditModal';
 import { SongPersistService } from './audio/Persist';
 import { TextOrLink } from './TextOrLink';
+import { HtmlTooltip } from './HtmlTooltip';
 
 
 export default class TrackListView extends React.Component {
@@ -116,20 +117,27 @@ export default class TrackListView extends React.Component {
   getType() {
     return this.props.type.replace('.html', '').toLowerCase();
   }
-  handleCellClick(params) {
-    if (params?.field === 'menu') {
-      listViewMenuClick$.next(params.row);
-      return;
-    }
-    if (params?.field !== 'Title') {
-      return;
-    }
-    const items = this.state.objects;
-    const track = params?.row;
+  shuffle() {
+    const items = randomize(this.state.objects);
+    const track = items[0];
     const index = items.indexOf(track);
-    const source = this.props.type + '/' + this.props.id;
+    const source = this.props.type + '/' + this.props.id + '/shuffle';
     playbackRequest$.next({ items, track, index, source });
     this.activate();
+  }
+  handleCellClick(params) {
+    if (params?.field === 'menu') {
+      openMenuRequest$.next(params.row);
+      return;
+    }
+    if (params?.field === 'Title') {
+      const items = this.state.objects;
+      const track = params?.row;
+      const index = items.indexOf(track);
+      const source = this.props.type + '/' + this.props.id;
+      playbackRequest$.next({ items, track, index, source });
+      this.activate();
+    }
   }
   activate() {
     const activated = true;
@@ -160,6 +168,7 @@ export default class TrackListView extends React.Component {
 
   render() {
     const { objects, crumb, checkboxes, open, selectedTracks, selectionModel } = this.state;
+    const { type, id } = this.props;
     const skip = OMITTED_COLUMNS[this.getType()];
     const cols = !skip
       ? columns
@@ -174,6 +183,7 @@ export default class TrackListView extends React.Component {
             <PageBreadcrumbs open={this.props.open} crumb={crumb} />
           </div>
           <div className="upper-menu-right">
+            <ShuffleButton type={type} id={id} shuffle={() => this.shuffle()} />
             <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => this.loadComponentList()}>
               <Icon>refresh</Icon>
             </IconButton>
@@ -194,25 +204,50 @@ export default class TrackListView extends React.Component {
             rows={objects}
             checkboxSelection={checkboxes}
             columns={cols}
-            pageSize={50} />
+            pageSize={100} />
         </div>
       </div>
     )
   }
 }
 
+const ShuffleButton = ({ type, id, shuffle }) => {
+  const source = type + '/' + id + '/shuffle';
+  const icon = source === AppState.SOURCE ? 'shuffle_on' : 'shuffle'
+  return (
+    <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => shuffle()}>
+      <Icon>{icon}</Icon>
+    </IconButton>)
+}
 
+const TitleCell = ({ track }) => {
+  const heart = compareTrackToLists(track);
+  const value = track.Title?.replace(/\.[^.]{3}$/, '');
+  return (
+    <HtmlTooltip
+      title={
+        <React.Fragment>
+          <Avatar alt={track?.Title} src={track?.albumImage} style={{ float: 'left', margin: '4px' }} />
+          <div className="tooltip-block">
+            <Typography className="no-wrap" color="inherit">
+              {track?.Title}
+              <div className="tooltip-line"><label className="tooltip-label">artist</label> <b>{track?.artistName}</b></div>
+              <div className="tooltip-line"><label className="tooltip-label">album</label> <b>{track?.albumName}</b></div>
+            </Typography>
+          </div>
+        </React.Fragment>
+      }>
+      <a>{heart ? <Icon style={{ color: 'red' }}>favorite</Icon> : <i />}{value}</a>
+    </HtmlTooltip>
+  );
+}
 
 const columns = [
   { field: 'trackNumber', headerName: '#', width: 24 },
   {
     field: 'Title', headerName: 'Title', width: 324,
     renderCell: (params) => {
-      const heart = compareTrackToLists(params.row);
-      const value = params.value?.replace(/\.[^.]{3}$/, '');
-      return (
-        <a>{heart ? <Icon style={{ color: 'red' }}>favorite</Icon> : <i />}{value}</a>
-      );
+      return <TitleCell track={params.row} />
     }
   },
   {
