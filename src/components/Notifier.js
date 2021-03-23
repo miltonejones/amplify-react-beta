@@ -40,15 +40,13 @@ export default class Notifier extends Component {
             vertical: 'bottom',
             horizontal: 'right',
           }}
+          classes={{ root: 'no-wrap snackbar' }}
           open={open}
-          autoHideDuration={6000}
+          autoHideDuration={2000}
           onClose={this.handleClose}
           message={message}
           action={
             <React.Fragment>
-              {/* <Button color="secondary" size="small" onClick={this.handleClose}>
-                UNDO
-            </Button> */}
               <IconButton size="small" aria-label="close" color="inherit" onClick={this.handleClose}>
                 <Icon>{icon}</Icon>
               </IconButton>

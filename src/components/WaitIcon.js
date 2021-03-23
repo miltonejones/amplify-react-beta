@@ -59,7 +59,7 @@ class PlayIcon extends React.Component {
   render() {
     const { playing } = this.state;
     const { icon } = this.props;
-    return <Icon>{playing ? 'volume_up' : icon}</Icon>
+    return <Icon style={{ margin: 0 }}>{playing ? 'volume_up' : icon}</Icon>
   }
 }
 

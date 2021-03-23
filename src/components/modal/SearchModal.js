@@ -45,17 +45,24 @@ export default class SearchDialog extends React.Component {
 
       })
   }
-  componentDidUpdate() {
+  check() {
     if (this.props.param && this.cacheParam !== this.props.param) {
       console.info('param change --> ' + this.props.param);
       this.find();
     }
+
     this.cacheParam = this.props.param;
+
+  }
+  componentDidUpdate() {
+    this.check();
   }
   loadComponentList() {
 
   }
   componentDidMount() {
+
+    this.check();
     this.loadComponentList();
   }
   handleClose() {

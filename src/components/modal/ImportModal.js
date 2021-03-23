@@ -125,16 +125,16 @@ export default function DownloadDialog(props) {
       trackNumber: 1
     })
     tracks.push(track);
-    console.log({ track, tracks })
+
     setTracks(tracks);
     setProgress(100);
   }
 
   useEffect(() => {
-    console.log('import modal subscribing', status);
+
     const sub = socketResponse.subscribe(res => {
       if (res?.state && res.state === 'COMPLETE') {
-        console.log({ body: res.body });
+
         try {
           const t = JSON.parse(res.body);
           addTrack(t)
@@ -148,7 +148,7 @@ export default function DownloadDialog(props) {
         if (regex) {
           setProgress(regex[1])
         } else {
-          console.log(res)
+
         }
       }
     })
@@ -157,7 +157,7 @@ export default function DownloadDialog(props) {
     }
     return () => {
       sub.unsubscribe();
-      console.log('import modal unsubscribing', status);
+
     }
   });
   return (

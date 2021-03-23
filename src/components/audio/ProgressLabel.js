@@ -27,16 +27,17 @@ export default class ProgressLabel extends React.Component {
   }
 
   componentDidUpdate() {
-    const percent = this.props.value / 100;
-    const width = 320 * percent;
-    this.cacheSize = `${width}px 22px`;
+    const { width, value, state, text } = this.props;
+    const percent = value / 100;
+    const widthPx = width * percent;
+    this.cacheSize = `${widthPx}px 22px`;
 
-    if (this.cacheText !== this.props.text || this.oldStatus !== this.props.state) {
+    if (this.cacheText !== text || this.oldStatus !== state) {
       this.animate();
     }
 
-    this.oldStatus = this.props.state;
-    this.cacheText = this.props.text;
+    this.oldStatus = state;
+    this.cacheText = text;
     // 
   }
 
@@ -81,8 +82,11 @@ export default class ProgressLabel extends React.Component {
   }
 
   render() {
+    const { width } = this.props;
+    let size = width - 20;
     return (
-      <div className="progress-outer-label" onMouseDown={this.handleEvent} style={{ backgroundImage: generateProgress(), backgroundSize: this.cacheSize }}>
+      <div className="progress-outer-label" onMouseDown={this.handleEvent}
+        style={{ backgroundColor: 'white', backgroundImage: generateProgress(), backgroundSize: this.cacheSize, width: size }}>
         <div className="progress-inner-label">
           {this.props.text}
         </div>
@@ -93,7 +97,7 @@ export default class ProgressLabel extends React.Component {
 }
 
 
-export function generateProgress(color = '#3f51b5') {
+export function generateProgress(color = 'rebeccapurple') {
   const output = document.createElement('canvas');
   ((canvas) => {
     canvas.width = 10;

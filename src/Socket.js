@@ -11,7 +11,7 @@ const connect = () => {
   const socket = socketIOClient(SOCKET_HOST);
   socket.on("connect", data => {
     status = !0;
-    console.log({ data });
+
     socketResponse$.next(data);
   });
   socket.on('response', a => socketResponse$.next(a));

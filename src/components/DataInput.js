@@ -51,7 +51,7 @@ function SearchableInput({ value, close, type, find, items, choose, fields, crea
   const handleChange = (arg) => {
     const value = arg?.target?.value;
     setImage(value)
-    console.log({ image })
+
   }
   const handleKeyup = (arg) => {
     const keyCode = arg.keyCode;
@@ -156,14 +156,14 @@ export default class DataInput extends Component {
     const { type } = this.props;
     if (type === 'genres') {
       query('genre').then(res => {
-        console.log(res.data, param)
+
         const genres = res.data.filter(g => g.Name.toLowerCase().indexOf(param.toLowerCase()) > -1)
           .map(g => {
             return { Key: g.genreKey, Title: g.Name, count: g.Count, image: g.genreImage }
           });
 
         this.setState({ ...this.state, items: genres.slice(0, 5) });
-        console.log(genres)
+
       })
     }
     search(param, type).then(res => {
@@ -172,7 +172,7 @@ export default class DataInput extends Component {
   }
 
   handleKeyup(e) {
-    console.log({ e })
+
   }
 
   render() {

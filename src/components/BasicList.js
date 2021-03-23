@@ -70,7 +70,7 @@ export default class ArtistList extends React.Component {
           artistName: item.Artist
         };
       })
-      console.log({ artists })
+
       const href = map[this.props.type];
       this.cacheType = this.props.type.substr(0, this.props.type.length - 1);
       this.setState({
@@ -107,9 +107,9 @@ export default class ArtistList extends React.Component {
         return out;
       }
       alert(`${sorter.Field} not found! Check the console`);
-      console.log(first);
+
     }
-    console.log(sorter);
+    
   }
 
   loadComponentList() {
@@ -136,13 +136,14 @@ export default class ArtistList extends React.Component {
           selectedCount: 0,
           href: this.props.type
         });
-        console.log({ sorter })
+        
       });
   }
 
 
   componentDidMount() {
     this.loadComponentList();
+    this.props.setHome(false);
     // this.setSorter();
   }
 

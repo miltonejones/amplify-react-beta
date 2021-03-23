@@ -247,7 +247,14 @@ img.toolbar-logo {
   height: 226px;
   margin-top: 12px;
 }
-
+.mobile-search-element {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.2s linear;
+}
+.mobile-search-element.open {
+  height: 56px;
+}
 .thumbnail-view .thumbnail-item img {
   width: 180px;
   height: 180px;
@@ -328,6 +335,7 @@ img.toolbar-logo {
   animation: album-rotate 4s infinite linear;
   border-radius: 50%;
   box-shadow: none;
+  opacity: 0.7;
 }
 
 @keyframes album-rotate {
@@ -339,7 +347,9 @@ img.toolbar-logo {
     transform: rotateZ(360deg);
   }
 }
-
+.pagination-container {
+  margin: 0 10px;
+}
 .standard-button {
   cursor: pointer;
 }
@@ -358,4 +368,10 @@ img.toolbar-logo {
 }
 .MuiDataGrid-row.Mui-selected {
   background-color: var(--line-item-active-color) !important;
+}
+.MuiSnackbarContent-message {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: calc(100vw - 120px);
 }

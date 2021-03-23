@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import './App.css';
+import './App.mobile.css';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 import InputBase from '@material-ui/core/InputBase';
@@ -29,6 +30,7 @@ import NavPlayList from './components/NavPlayList';
 import SearchDialog from './components/modal/SearchModal';
 import { WaitIcon } from './components/WaitIcon';
 import Notifier from './components/Notifier';
+import { useMediaQuery } from '@material-ui/core';
 
 function DisplayFindView(props) {
   const params = useParams();
@@ -51,13 +53,21 @@ function DisplayListView(props) {
 
 function App() {
   const [open, setOpen] = React.useState(false);
-  const [home, setHome] = React.useState(false);
+  const [home, setHome] = React.useState(true);
   const [find, setFind] = React.useState({ open: false });
+  const [expanded, setExpanded] = React.useState(false);
   const [playing, setPlaying] = React.useState(AppState.PLAYING);
   const [snackMenuOpen, setMenu] = React.useState(false);
+  const [searchOpen, setSearchOpen] = React.useState(false);
   const [light, setLight] = React.useState(false);
   const [editedTrack, setEditedTrack] = React.useState({});
   const classes = useStyles();
+  const matches = useMediaQuery('(max-width:600px)');
+  const eq_width = matches ? 300 : 400;
+
+  const handleSearchClick = () => {
+    setSearchOpen(!searchOpen);
+  }
 
   const handleDrawerOpen = () => {
     if (open) {
@@ -91,24 +101,49 @@ function App() {
     setHome(arg)
   }
 
+  const setExpandState = () => {
+    setExpanded(!expanded);
+  }
+
   const setPlayState = (playingNow) => {
     AppState.PLAYING = playingNow;
     setPlaying(playingNow);
   }
 
   useEffect(() => {
-    console.log('subscribing')
+
     const sub = openMenuRequest.subscribe(track => {
       setMenu(true);
       setEditedTrack(track);
     });
     return () => {
-      console.log('unsubscribing')
+
       sub.unsubscribe();
     }
   });
 
   AppState.LOADED = true;
+  const InlineSearchElement = () => {
+    const { open, param } = find;
+    return (<div className={classes.search}>
+      <SearchDialog close={handleSearchClose} isOpen={open} param={param} />
+
+      <div className={classes.searchIcon}>
+        <Icon>search</Icon>
+      </div>
+      <InputBase
+        placeholder="Search…"
+        onKeyUp={handleInputChange}
+        classes={{
+          root: classes.inputRoot,
+          input: classes.inputInput,
+        }}
+        inputProps={{ 'aria-label': 'search' }}
+      />
+
+    </div>)
+  };
+
   return (
     <div className={['App', light ? 'light' : '', home ? 'home' : ''].join(' ')}>
       <Router>
@@ -131,26 +166,24 @@ function App() {
               <Icon>menu</Icon>
             </IconButton>
             {/* logo */}
-            <Link to="/">
+            {!(matches && open) && (<Link to="/">
               <img className="toolbar-logo" alt={APP_NAME} src="http://ullify.com/assets/notify.png" />
               <Underline innerText="Amplify!" />
-            </Link>
+            </Link>)}
             {/* search */}
-            <div className={classes.search}>
-              <SearchDialog close={handleSearchClose} isOpen={find.open} param={find.param} />
-              <div className={classes.searchIcon}>
+            {!matches && <InlineSearchElement />}
+
+            {matches ? (<div>
+              <IconButton
+                onClick={handleSearchClick}
+                edge="end"
+                color="inherit"
+              >
                 <Icon>search</Icon>
-              </div>
-              <InputBase
-                placeholder="Search…"
-                onKeyUp={handleInputChange}
-                classes={{
-                  root: classes.inputRoot,
-                  input: classes.inputInput,
-                }}
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            </div>
+              </IconButton>
+            </div>) : ''}
+
+
             <div className={classes.sectionDesktop}>
               <WaitIcon />
               <IconButton
@@ -183,14 +216,17 @@ function App() {
 
         {/* primary workspace */}
         <div className="amplify-main-workspace">
+          {!home && (<div className={[classes.search, "mobile-search-element", searchOpen ? 'open' : ''].join(' ')}>
+            <InlineSearchElement />
+          </div>)}
           <Switch>
-            <Route path="/recent/:type" children={<DisplayListView recent open={open} />} />
-            <Route path="/find/:type/:param" children={<DisplayFindView open={open} />} />
-            <Route path="/list/:type" children={<DisplayThumbView open={open} />} />
-            <Route path="/show/:type/:id" children={<DisplayListView open={open} />} />
-            <Route path="/show/:type" children={<DisplayListView open={open} />} />
-            <Route path="/main/:type" children={<DashPage setHome={handleSetHome} open={open} />} />
-            <Route path="/" children={<DashPage setHome={handleSetHome} open={open} />} />
+            <Route path="/recent/:type" children={<DisplayListView setHome={handleSetHome} recent open={open} />} />
+            <Route path="/find/:type/:param" children={<DisplayFindView setHome={handleSetHome} open={open} />} />
+            <Route path="/list/:type" children={<DisplayThumbView setHome={handleSetHome} open={open} />} />
+            <Route path="/show/:type/:id" children={<DisplayListView setHome={handleSetHome} open={open} />} />
+            <Route path="/show/:type" children={<DisplayListView setHome={handleSetHome} open={open} />} />
+            <Route path="/main/:type" children={<DashPage mobile={matches} setHome={handleSetHome} open={open} />} />
+            <Route path="/" children={<DashPage mobile={matches} setHome={handleSetHome} open={open} />} />
           </Switch>
         </div>
 
@@ -204,14 +240,14 @@ function App() {
 
       {/* audio player */}
       <Drawer
-        className={clsx({ [classes.player]: playing })}
+        className={clsx({ [classes.player]: playing && !expanded, [classes.expanded]: expanded })}
         variant="persistent"
         anchor="bottom"
         open={playing}
         classes={{
-          paper: clsx({ [classes.player]: playing }),
+          paper: clsx({ [classes.player]: playing && !expanded, [classes.expanded]: expanded }),
         }}  >
-        <AudioPlayer notify={setPlayState} />
+        <AudioPlayer mobile={matches} expanded={expanded} expand={setExpandState} eq_width={eq_width} notify={setPlayState} />
       </Drawer>
     </div >
   );

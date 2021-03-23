@@ -166,7 +166,7 @@ const TrackNumberInput = ({ track, field }) => {
       track[field] = value;
       setEditing(false)
     }
-    console.log({ keyCode })
+
   }
   if (!editing) {
     return <a href={DEFAULT_HREF} onClick={() => setEditing(true)}>{track[field] || '---'}</a>

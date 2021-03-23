@@ -27,11 +27,12 @@ export default class EqLabel extends React.Component {
   }
 
   render() {
+    const { width } = this.props;
     return (
-      <div className="eq-outer-label">
+      <div className="eq-outer-label" style={{ width }}>
         <div style={{
           backgroundImage: fullGrid(),
-          backgroundSize: '400px 40px',
+          backgroundSize: `${width}px 40px`,
           backgroundRepeat: 'no-repeat'
         }} className="grid-mask"></div>
         {this.state.data.map((coord, i) => {

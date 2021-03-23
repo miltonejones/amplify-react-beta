@@ -20,7 +20,6 @@ export default class PlaylistBanners extends React.Component {
     return () => getPlaylist(data).then(items => {
       const index = 0;
       const track = items[index];
-
       playbackRequest$.next({ items, track, index });
     })
   }
@@ -28,9 +27,10 @@ export default class PlaylistBanners extends React.Component {
   componentDidUpdate() {
   }
   loadComponentList() {
+    const { mobile } = this.props;
     query('playlist')
       .then(res => {
-        const objects = randomize(res.data.filter(f => !!f.image)).slice(0, 6);
+        const objects = randomize(res.data.filter(f => !!f.image)).slice(0, mobile ? 3 : 6);
         objects.map(f => f.listKey = generateKey(f.Title));
         this.setState({ objects });
       });
@@ -51,10 +51,3 @@ export default class PlaylistBanners extends React.Component {
     )
   }
 }
-
-/**
- *
- *
-    [style.background-image]="'url(' + i.image + ')'"
- *  *ngFor="let i of dataList"
- */

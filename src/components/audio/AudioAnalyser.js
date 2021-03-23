@@ -19,9 +19,8 @@ class AudioAnalyser {
     this.color = hue;
   }
 
-  attach(audio) {
+  attach(audio, width) {
     const hue = '';
-    const width = 400;
     this.configure(audio, hue, width);
     this.analyser = this.context.createAnalyser();
     const source = this.context.createMediaElementSource(audio);

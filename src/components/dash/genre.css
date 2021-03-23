@@ -60,3 +60,10 @@
   align-items: center;
   justify-content: center;
 }
+
+@media only screen and (max-width: 600px) {
+  .empty-song-list .genre-song-item,
+  .genre-song-list .genre-song-item {
+    width: 100%;
+  }
+}

@@ -36,7 +36,7 @@ const emptyList = () => <h4>No playlists found</h4>
 
 export default function PlaylistAddDialog(props) {
   const classes = useStyles();
-  const { count, track, component } = props;
+  const { count, track, component, css } = props;
   const [open, setOpen] = React.useState(false);
   const [group, setGroup] = React.useState(PLAYLIST_COLLECTION);
 
@@ -55,7 +55,7 @@ export default function PlaylistAddDialog(props) {
     });
   }
   return (
-    <div style={{ display: 'inline-block' }}>
+    <div className={css}>
       <span onClick={handleClickOpen}>
         {
           component || <Badge color="secondary" badgeContent={count}>

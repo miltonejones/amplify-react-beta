@@ -1,0 +1,48 @@
+@media only screen and (max-width: 600px) {
+  :root {
+    --carousel-max-height: 90px;
+    --carousel-title-font: 1rem;
+    --carousel-caption-font: 0.8rem;
+    --carousel-line-height: 18px;
+  }
+
+  .thumbnail-view,
+  .list-view {
+    margin: 2px 8px;
+  }
+  .list-view.open,
+  .thumbnail-view.open {
+    width: 100vw;
+    margin: 2px 8px;
+  }
+  .thumbnail-view.collapsed {
+    border: none;
+  }
+  .eq-outer-label {
+    /* width: 300px !important; */
+  }
+  .eq-outer-label .grid-mask {
+    /* width: 300px !important; */
+  }
+  .artist-carousel-body .owl-carousel .owl-nav .owl-next,
+  .artist-carousel-body .owl-carousel .owl-nav .owl-prev {
+    top: 16px !important;
+  }
+}
+
+.player-drawer {
+  height: 90px;
+  width: 100vw;
+  overflow: hidden !important;
+  flex-shrink: 0;
+  transition: height 0.6s linear;
+}
+
+.player-drawer .expanded {
+  height: 100vh !important;
+  overflow: hidden;
+}
+
+.row-even {
+  background-color: var(--row-even-color) !important;
+}

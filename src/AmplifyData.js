@@ -25,7 +25,7 @@ const group = (type, keys) => {
         track[`${type}Name`] = null;
         return track;
       })
-      console.log(out)
+
       saveTracks(out).then(callback);
     });
   })

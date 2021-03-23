@@ -37,3 +37,9 @@
 .banner-container .banner.active .material-icons {
   display: inline-block;
 }
+
+@media only screen and (max-width: 600px) {
+  .banner-container .banner {
+    width: 95%;
+  }
+}

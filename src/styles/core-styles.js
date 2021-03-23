@@ -90,11 +90,19 @@ export const useStyles = makeStyles((theme) => ({
     width: drawerWidth,
     flexShrink: 0,
   },
+  expanded: {
+    height: '100vh',
+    width: '100vw',
+    overflow: 'hidden',
+    flexShrink: 0,
+    transition: 'height 0.6s linear'
+  },
   player: {
     height: '80px',
     width: '100vw',
     overflow: 'hidden',
     flexShrink: 0,
+    transition: 'height 0.6s linear'
   },
   drawerPaper: {
     width: drawerWidth,

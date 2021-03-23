@@ -5,7 +5,7 @@ import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import HomeIcon from '@material-ui/icons/Home';
 import appRoutes from '../Routes';
-import { Icon } from '@material-ui/core';
+import { Icon, useMediaQuery } from '@material-ui/core';
 
 const createCrumb = (path, id, label) => {
   const crumb = appRoutes.filter(route => route.path === path)[0];
@@ -45,12 +45,13 @@ const useStyles = makeStyles((theme) => ({
 const PageBreadcrumbs = (props) => {
   const classes = useStyles();
   const { crumb, open } = props;
+  const matches = useMediaQuery('(max-width:600px)');
 
   return (
-    <Breadcrumbs aria-label="breadcrumb" classes={{ root: open ? classes.open : classes.root }}>
+    <Breadcrumbs aria-label="breadcrumb" classes={{ root: open && !matches ? classes.open : classes.root }}>
       <Link color="inherit" to="/" className={classes.link}>
         <HomeIcon className={classes.icon} />
-        Home
+        {!matches && 'Home'}
       </Link>
 
 
@@ -61,7 +62,7 @@ const PageBreadcrumbs = (props) => {
           className={classes.link}
         >
           <Icon className={classes.noicon}>{crumb.data.icon}</Icon>
-          {crumb.data.label}
+          {!matches && crumb.data.label}
         </Link>)
       }
 
@@ -69,7 +70,7 @@ const PageBreadcrumbs = (props) => {
       {
         crumb?.label && (<Typography color="textPrimary" className={classes.link}>
           {/* <GrainIcon className={classes.icon} /> */}
-          {crumb.label}
+          {truncate(crumb.label, matches)}
         </Typography>)
       }
     </Breadcrumbs>
@@ -80,4 +81,11 @@ const PageBreadcrumbs = (props) => {
 export {
   PageBreadcrumbs,
   createCrumb
+}
+
+const truncate = (str, yes) => {
+  if (yes && str.length > 15) {
+    return str.substr(0, 15) + '...';
+  }
+  return str;
 }

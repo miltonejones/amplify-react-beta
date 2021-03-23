@@ -7,7 +7,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { Badge, Icon, makeStyles } from '@material-ui/core';
 import Underline from '../underline/Underline';
 import { DataGrid } from '@material-ui/data-grid';
-import { playbackRequest$ } from '../../util/Events';
+import { playbackRequest$, playBegin, playEnd } from '../../util/Events';
+import { ResponsiveDataGrid } from '../ResponsiveDataGrid';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -45,7 +46,7 @@ const columns = [
 
 export default function QueueDialog(props) {
   const classes = useStyles();
-  const { items } = props;
+  const { items, css, selected } = props;
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -58,14 +59,16 @@ export default function QueueDialog(props) {
 
   const handleCellClick = (params) => {
 
-    const track = params?.row;
+    const track = params?.row || params;
     const index = items.indexOf(track);
 
     playbackRequest$.next({ items, track, index });
   }
 
+
+
   return (
-    <div>
+    <div className={css}>
 
       <Badge onClick={handleClickOpen} color="secondary" badgeContent={items?.length}>
         <Icon>queue_music</Icon>
@@ -79,7 +82,20 @@ export default function QueueDialog(props) {
       >
         <DialogTitle id="alert-dialog-title"><Underline innerText="Play Queue" dark={true} /></DialogTitle>
         <DialogContent classes={{ root: classes.outer }}>
-          <DataGrid onCellClick={handleCellClick} rows={items} columns={columns} pageSize={5} />
+          {/* <DataGrid onCellClick={handleCellClick} rows={items} columns={columns} pageSize={5} /> */}
+
+          <ResponsiveDataGrid
+            select={handleCellClick}
+            click={handleCellClick}
+            selectionModel={selected}
+            objects={items}
+            cols={columns}
+            pageSize={15}
+
+
+          />
+
+
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary" autoFocus>

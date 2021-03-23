@@ -1,6 +1,13 @@
+.audio-play-head {
+  background-color: var(--dark-window-color);
+}
+
 .audio-player-visible-controls {
   display: flex;
   flex-wrap: nowrap;
+  background-color: var(--dark-window-color);
+  color: var(--toolbar-text-color);
+  /* mix-blend-mode: exclusion; */
 }
 
 .audio-player-visible-controls .play-state-controls,
@@ -23,26 +30,34 @@
   border: solid 1px var(--dark-window-color);
 }
 
-.audio-player-visible-controls .play-state-controls {
+.flex-centered {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.audio-player-visible-controls .player-progress {
-  width: 320px;
+.flex-centered.right {
+  justify-content: right;
+  align-items: center;
+}
+
+.player-standard-button {
+}
+
+/* .audio-player-visible-controls .play-state-controls {
   display: flex;
   justify-content: center;
   align-items: center;
+} */
+
+.audio-player-visible-controls .player-progress {
+  width: 320px;
 }
 
 .player-track-menu {
   /* outline: solid 1px rebeccapurple; */
   float: right;
   margin: 8px 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .progress-outer-label {
@@ -103,4 +118,140 @@
 
 button {
   margin: 0 0 !important;
+}
+
+.btn-menu-toggle,
+.btn-play-pause,
+.player-track-title {
+  display: none;
+}
+
+@media only screen and (max-width: 600px) {
+  .btn-fast-forward,
+  .btn-fast-rewind,
+  .btn-player-close,
+  .btn-track-menu,
+  .btn-playlist-modal,
+  .btn-queue-modal,
+  .player-progress {
+    display: none;
+  }
+  .audio-player-visible-controls.expanded {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transition: background-position-y 0.7s linear;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 56px 56px 1fr 56px 56px;
+    grid-template-rows: 48px 1fr 48px 48px 48px 48px;
+    grid-template-areas:
+      "menu-toggle title-bar title-bar title-bar sheet-toggle"
+      ". cover-art cover-art cover-art ."
+      "playlist-btn . . . queue-btn"
+      "eq eq eq eq eq"
+      "progress progress progress progress progress"
+      "shuffle-btn rwd-btn play-btn fwd-btn cont-btn";
+  }
+  .audio-player-visible-controls.expanded.retract {
+    background-position-y: -760px;
+  }
+  .audio-player-visible-controls.expanded.present {
+    background-position-y: -60px;
+  }
+  .audio-player-visible-controls.expanded .play-state-photo {
+    grid-area: cover-art;
+    display: flex;
+    /* align-items: center; */
+    justify-content: center;
+    /* outline: dotted 1px red; */
+    width: 100%;
+    padding: 20px 0;
+  }
+  .audio-player-visible-controls.expanded .player-track-title {
+    display: inline-block;
+    grid-area: title-bar;
+    text-align: center;
+    mix-blend-mode: exclusion;
+    line-height: 1;
+  }
+  .audio-player-visible-controls.expanded .player-track-title h2 {
+    font-size: 0.85rem;
+    margin: 8px 0 0 0;
+    text-transform: uppercase;
+  }
+  .audio-player-visible-controls.expanded .player-track-title h2:before {
+    content: "playing from ";
+  }
+  .audio-player-visible-controls.expanded .btn-menu-toggle {
+    display: inline-block;
+    grid-area: menu-toggle;
+    mix-blend-mode: exclusion;
+  }
+
+  .audio-player-visible-controls.expanded .player-equalizer {
+    grid-area: eq;
+  }
+  .audio-player-visible-controls.expanded .player-progress {
+    display: inline-block;
+    grid-area: progress;
+    padding: 0 10px;
+  }
+
+  .audio-player-visible-controls.expanded .btn-play-pause {
+    display: inline-block;
+    grid-area: play-btn;
+    text-align: center;
+    /* outline: dotted 1px red; */
+  }
+  .audio-player-visible-controls.expanded .btn-play-pause .material-icons {
+    font-size: 2.5rem;
+    /* outline: dotted 1px red; */
+    margin: 0;
+  }
+  .audio-player-visible-controls.expanded .btn-fast-forward {
+    display: inline-block;
+    grid-area: fwd-btn;
+  }
+  .audio-player-visible-controls.expanded .btn-fast-rewind {
+    display: inline-block;
+    grid-area: rwd-btn;
+  }
+  .audio-player-visible-controls.expanded .btn-track-menu {
+    display: inline-block;
+    grid-area: sheet-toggle;
+    mix-blend-mode: exclusion;
+  }
+
+  .audio-player-visible-controls.expanded .btn-playlist-modal {
+    display: inline-block;
+    grid-area: playlist-btn;
+    mix-blend-mode: exclusion;
+  }
+  .audio-player-visible-controls.expanded .btn-queue-modal {
+    display: inline-block;
+    grid-area: queue-btn;
+    mix-blend-mode: exclusion;
+  }
+  .audio-player-visible-controls.expanded .play-state-photo img {
+    width: 270px;
+    height: 270px;
+    margin: 5px 0 0 10px;
+    transition: border-radius 0.2s;
+    border: solid 1px var(--dark-window-color);
+  }
+}
+
+.expand-bg {
+  animation: bg-expand 4s forwards linear;
+}
+
+@keyframes bg-expand {
+  from {
+    background-position-y: -760px;
+  }
+
+  to {
+    background-position-y: -60px;
+  }
 }
