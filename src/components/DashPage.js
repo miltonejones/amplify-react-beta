@@ -15,6 +15,7 @@ import { NavMenu } from './dash/NavMenu';
 import { SongPersistService } from './audio/Persist';
 import { Link } from 'react-router-dom';
 import { DesktopOnly, DynamicGrid } from '../util/MediaQueries';
+import { LocalApi } from '../data/LocalApi';
 
 const SeeAllLink = (props) => {
   return <div style={{ float: 'right' }}><Link className='see-all-link' {...props}>See All <Icon>chevron_right</Icon></Link></div>
@@ -29,13 +30,18 @@ export default class DashPage extends React.Component {
   }
 
   loadComponentList() {
-    query('search/dashSearch')
+    LocalApi.getDashData()
+      //   .then(console.log)
+      // query('search/dashSearch')
       .then(res => {
-        const objects = res.data;
+        const objects = res.data || res;
         this.setState({ objects })
 
-        getGenreData().then(genreData => {
-
+        LocalApi.getGenreData().then(genreData => {
+          //   console.log({ genreData })
+          // })
+          // getGenreData().then(genreData => {
+          console.log({ genreData })
           this.setState({
             ...this.state,
             genreData

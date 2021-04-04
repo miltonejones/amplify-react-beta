@@ -1,24 +1,24 @@
 
 import React from 'react';
-import { DataGrid } from '@material-ui/data-grid';
-import { playbackRequest$, openMenuRequest$, playBegin, playEnd } from "../util/Events";
+import { openMenuRequest$, playBegin, playEnd } from "../util/Events";
 import { AppState, mmss, randomize, sortObjects } from '../util/State';
 import Icon from '@material-ui/core/Icon';
-import { compareTrackToLists, dataStateChange, getPlaylist, query, search } from '../AmplifyData';
+import { compareTrackToLists, dataStateChange, getPlaylist, search } from '../AmplifyData';
 import { ARTIST_API_ADDRESS, DEFAULT_HREF } from '../Constants';
 import { createCrumb, PageBreadcrumbs } from './Breadcrumb';
 import PlaylistAddDialog from './modal/PlaylistAddModal';
-import { IconButton, useMediaQuery } from '@material-ui/core';
+import { IconButton } from '@material-ui/core';
 import BatchEditDialog from './modal/BatchEditModal';
 import { SongPersistService } from './audio/Persist';
 import { TextOrLink } from './TextOrLink';
 import { HtmlTooltip } from './HtmlTooltip';
 import DownloadDialog from './modal/ImportModal';
-import ModalTrackList from './modal/ModalTrackList';
 import { DesktopOnly } from '../util/MediaQueries';
 import { TrackTooltip } from './TrackToolTip';
 import { ResponsiveDataGrid } from './ResponsiveDataGrid';
-
+import { sendRequestToPlayer } from './audio/PlayerRequest';
+import { LocalApi } from '../data/LocalApi';
+import { useDraggable } from '@dnd-kit/core';
 
 export default class TrackListView extends React.Component {
   cacheType = '';
@@ -37,7 +37,7 @@ export default class TrackListView extends React.Component {
   }
 
   getPlaylist() {
-    getPlaylist(this.props.id).then(data => {
+    LocalApi.getPlaylist(this.props.id).then(data => {
       this.setObjects(data, this.props.id);
     });
   }
@@ -45,9 +45,11 @@ export default class TrackListView extends React.Component {
   setObjects(items, title) {
     const objects = sortObjects(items, this.getType());
     const crumb = createCrumb(this.props.type, this.props.id, title);
+
     const selectionModel = AppState.TRACK.ID ? [AppState.TRACK.ID] : [];
     this.clearSelectedTracks();
     this.setState({ objects, crumb, open: false, selectionModel });
+    this.props.setHome(false);
 
     // this.selectTrack(AppState.TRACK);
   }
@@ -78,6 +80,9 @@ export default class TrackListView extends React.Component {
       }, objects
     });
   }
+  localDbData() {
+    return LocalApi.get('tune');
+  }
   loadComponentList() {
     const { param, recent, id } = this.props;
     if (recent) {
@@ -93,11 +98,11 @@ export default class TrackListView extends React.Component {
       return this.getPlaylist();
     }
     const promise = type === 'library'
-      ? query('tune')
-      : query(type, id);
+      ? this.localDbData() // query('tune')
+      : LocalApi.query(`${type}/${id}`); //query(type, id);
     promise
       .then(res => {
-        const datum = res.data;
+        const datum = res.data || res;
 
         this.setObjects(datum.related || datum, datum.Name || datum.Title || id);
       });
@@ -139,10 +144,22 @@ export default class TrackListView extends React.Component {
     const track = items[0];
     const index = items.indexOf(track);
     const source = this.props.type + '/' + this.props.id + '/shuffle';
-    playbackRequest$.next({ items, track, index, source, crumb });
+    // sendRequestToPlayer();
+    sendRequestToPlayer({ items, track, index, source, crumb })
     this.activate();
   }
   handleCellClick(params) {
+
+
+    // if (Analyser.context.state !== 'running') {
+    //   const k = window.confirm(`The equalizer needs permission to access your system. 
+    //   Click here to grant permission.`);
+    //   if (k) {
+    //     Analyser.context.resume();
+    //   }
+    //   return;
+    // }
+
     if (params?.field === 'menu') {
       openMenuRequest$.next(params.row);
       return;
@@ -156,7 +173,8 @@ export default class TrackListView extends React.Component {
     const items = objects;
     const index = items.indexOf(track);
     const source = this.props.type + '/' + this.props.id;
-    playbackRequest$.next({ items, track, index, source, crumb });
+    sendRequestToPlayer({ items, track, index, source, crumb });
+
     this.activate();
   }
   activate() {
@@ -171,7 +189,8 @@ export default class TrackListView extends React.Component {
     const { selectionModel } = e;
     const selectedTracks = selectionModel.map(f => objects.filter(o => f && o.ID.toString() === f.toString())[0])
       .filter(i => !!i);
-    this.setState({ ...this.state, selectedTracks });
+    console.log({ selectedTracks })
+    this.setState({ selectedTracks });
   }
   selectTrack(track) {
     this.setState({ ...this.state, selectionModel: [track?.ID] });
@@ -187,7 +206,7 @@ export default class TrackListView extends React.Component {
   }
 
   render() {
-    const { objects, crumb, checkboxes, open, selectedTracks, selectionModel, ready } = this.state;
+    const { objects, crumb, checkboxes, open, selectedTracks, selectionModel, ready, dupes } = this.state;
     const { type, id } = this.props;
     const skip = OMITTED_COLUMNS[this.getType()];
     const cols = !skip
@@ -196,21 +215,27 @@ export default class TrackListView extends React.Component {
     const className = ['list-view'];
     if (this.props.open) className.push('open');
     if (AppState.PLAYING) className.push('collapsed');
+    const duplicatesPresent = !!objects?.filter(f => f.duplicate).length
     return (
       <div>
         <div className="upper-menu">
           <div className="upper-menu-left">
             <PageBreadcrumbs open={this.props.open} crumb={crumb} />
           </div>
-          <div className="upper-menu-right">
+          <div className="upper-menu-right flex-centered">
             <ShuffleButton type={type} id={id} shuffle={() => this.shuffle()} />
             <IconButton classes={{ root: ['icon-button-no-padding', !ready ? 'spinning-icon' : ''].join(' ') }} onClick={() => this.loadComponentList()}>
               <Icon>refresh</Icon>
             </IconButton>
             <DesktopOnly content={
-              <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => this.setState({ ...this.state, checkboxes: !checkboxes })}>
-                <Icon>{checkboxes ? 'check_circle' : 'check_circle_outline'}</Icon>
-              </IconButton>
+              <div>
+                <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => this.setState({ ...this.state, checkboxes: !checkboxes })}>
+                  <Icon>{checkboxes ? 'check_circle' : 'check_circle_outline'}</Icon>
+                </IconButton>
+                {duplicatesPresent && (<IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => this.setState({ ...this.state, dupes: !dupes })}>
+                  <Icon>{dupes ? 'file_copy' : 'content_copy'}</Icon>
+                </IconButton>)}
+              </div>
             } />
             {checkboxes && !!selectedTracks?.length && (<IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => this.setState({ ...this.state, open: !0 })}>
               <Icon>edit</Icon>
@@ -224,6 +249,7 @@ export default class TrackListView extends React.Component {
             selectionModel={selectionModel}
             change={(e) => this.setSelectedTracks(e)}
             objects={objects}
+            dupes={dupes}
             select={(t) => this.sendPlayRequest(t)}
             checkboxes={checkboxes}
             cols={cols}
@@ -236,6 +262,23 @@ export default class TrackListView extends React.Component {
   }
 }
 
+
+function Draggable(props) {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: 'draggable',
+  });
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
+
+
+  return (
+    <button ref={setNodeRef} style={style} {...listeners} {...attributes}>
+      button
+    </button>
+  );
+}
+
 const ShuffleButton = ({ type, id, shuffle }) => {
   const source = type + '/' + id + '/shuffle';
   const icon = source === AppState.SOURCE ? 'shuffle_on' : 'shuffle'
@@ -246,8 +289,12 @@ const ShuffleButton = ({ type, id, shuffle }) => {
 }
 
 const TitleCell = ({ track }) => {
+  const { label } = track;
   const heart = compareTrackToLists(track);
   const value = track.Title?.replace(/\.[^.]{3}$/, '');
+  if (label) {
+    return <b>{track.Title}</b>
+  }
   return (
     <HtmlTooltip
       title={<TrackTooltip track={track} />}>
@@ -284,7 +331,7 @@ const columns = [
   },
   {
     field: 'computedTime', headerName: 'Time', disableColumnMenu: true, width: 100,
-    valueGetter: (params) => mmss(params.getValue('trackTime'), 1000)
+    valueGetter: (params) => mmss(params.row.trackTime, 1000)
   },
 
   {

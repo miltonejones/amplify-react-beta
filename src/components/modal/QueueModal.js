@@ -9,6 +9,7 @@ import Underline from '../underline/Underline';
 import { DataGrid } from '@material-ui/data-grid';
 import { playbackRequest$, playBegin, playEnd } from '../../util/Events';
 import { ResponsiveDataGrid } from '../ResponsiveDataGrid';
+import { sendRequestToPlayer } from '../audio/PlayerRequest';
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -62,7 +63,7 @@ export default function QueueDialog(props) {
     const track = params?.row || params;
     const index = items.indexOf(track);
 
-    playbackRequest$.next({ items, track, index });
+    sendRequestToPlayer({ items, track, index });
   }
 
 
@@ -70,7 +71,7 @@ export default function QueueDialog(props) {
   return (
     <div className={css}>
 
-      <Badge onClick={handleClickOpen} color="secondary" badgeContent={items?.length}>
+      <Badge max={9999} onClick={handleClickOpen} color="secondary" badgeContent={items?.length}>
         <Icon>queue_music</Icon>
       </Badge>
 

@@ -4,17 +4,15 @@ import { addQueueRequest, openMenuRequest$, playbackRequest, playBegin$, playEnd
 import { Analyser } from "./AudioAnalyser";
 import ProgressLabel from "./ProgressLabel";
 import './Player.css';
-import IconButton from '@material-ui/core/IconButton';
-import Icon from '@material-ui/core/Icon';
 import EqLabel from './EqLabel';
 import { SongPersistService } from './Persist';
 import QueueDialog from '../modal/QueueModal';
-import { compareTrackToLists, PLAYLIST_COLLECTION, dataStateChange, save, query } from '../../AmplifyData';
+import { compareTrackToLists, PLAYLIST_COLLECTION, dataStateChange, save } from '../../AmplifyData';
 import PlaylistAddDialog from '../modal/PlaylistAddModal';
-import { HtmlTooltip } from '../HtmlTooltip';
 import { AppState } from '../../util/State';
 import { TrackTooltip } from '../TrackToolTip';
 import { ToolTipButton } from '../ToolTipButton';
+import { LocalApi } from '../../data/LocalApi';
 
 
 export default class AudioPlayer extends React.Component {
@@ -78,17 +76,19 @@ export default class AudioPlayer extends React.Component {
     if (!track.trackTime) {
       const trackTime = audioElement.duration * 1000;
       track.trackTime = trackTime;
-      save(track).then(console.log);
+      LocalApi.save(track).then(console.log);
       return;
     }
     console.log({ time: track.trackTime })
   }
   setArtist(artistFk) {
     if (!artistFk) return;
-    query('artist', artistFk).then(res => {
-      const { imageLg } = res.data;
-      this.setState({ ...this.state, imageLg, imageLoaded: !!imageLg })
-    })
+    // query('artist', artistFk)
+    LocalApi.query('artist/' + artistFk)
+      .then(res => {
+        const { imageLg } = res.data || res;
+        this.setState({ ...this.state, imageLg, imageLoaded: !!imageLg })
+      })
   }
   loadTrack(e) {
     if (Analyser.context.state !== 'running') {

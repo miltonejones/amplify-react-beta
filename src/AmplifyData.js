@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { Subject } from 'rxjs';
 import { ARTIST_API_ADDRESS } from './Constants';
+import { organize, stripExt } from './util/Functions';
 import { generateKey, randomize } from './util/State';
 
 let PLAYLIST_COLLECTION = [];
@@ -92,7 +93,6 @@ const getGenreData = () => {
 
       Promise.all(genres.map(q => query('genre', q.replace('&', '%26'))))
         .then(data => {
-
           data.map(d => {
             return d.data = d.data?.slice(0, 6);
           })
@@ -102,36 +102,7 @@ const getGenreData = () => {
   })
 }
 
-
-function organize(list, tracks) {
-  const output = [];
-  list.related?.map((track, i) => {
-    const found = tracks.filter(f => stripExt(f.FileKey) === stripExt(track))[0];
-    if (found) {
-      const exist = output.filter(o => o.FileKey === found.FileKey)[0];
-      if (exist) {
-        return null;
-      }
-      found.trackNumber = i + 1;
-      output.push(found);
-    }
-    return found;
-  });
-  return output;
-}
-
-function stripExt(value) {
-  if (!(value && value.replace)) {
-    return '';
-  }
-  const stripped = value.replace(/(\.mp3|\.opus|\.ogg)/g, '');
-  if (stripped) {
-    return stripped;
-  }
-  return value;
-}
-
-function saveList(list) {
+const saveList = (list) => {
   return new Promise(o => {
     eventPromise(axios.post(ARTIST_API_ADDRESS + 'playlist', list))
       .then(data => {
@@ -139,15 +110,15 @@ function saveList(list) {
       })
   })
 }
-function getPlaylistByKey(title, track) {
+const getPlaylistByKey = (title, track) => {
   return PLAYLIST_COLLECTION.filter(c => c.Title === title || c.listKey === title)[0];
 }
-function addToPlaylistByKey(title, track) {
+const addToPlaylistByKey = (title, track) => {
   const list = getPlaylistByKey(title, track);
   if (list) return addToPlaylist(list, track)
   return Promise.resolve()
 }
-function addToPlaylist(list, track) {
+const addToPlaylist = (list, track) => {
   const Key = track.Key;
   const existing = list.related.indexOf(Key) >= 0;
   if (!existing) {
@@ -157,22 +128,23 @@ function addToPlaylist(list, track) {
   }
   return removeFromPlaylist(list, track);
 }
-function removeFromPlaylist(list, track) {
+const removeFromPlaylist = (list, track) => {
   const existing = list.related.indexOf(track.Key) >= 0;
   if (existing) {
     list.related = list.related.filter((f) => f !== track.Key);
   }
   return saveList(list);
 }
-function createList(Title, track) {
+const createList = (Title, track) => {
   return saveList({
     Title,
     related: [track.Key]
   });
 }
 
-function getTrackListByKeys(playlist, Keys) {
+const getTrackListByKeys = (playlist, Keys) => {
   return new Promise(callback => {
+
     send('tune', { Keys })
       .then(res => {
 
@@ -183,23 +155,27 @@ function getTrackListByKeys(playlist, Keys) {
   })
 }
 
-function getPlaylist(id) {
+const getPlaylist = (id) => {
   return new Promise(callback => {
+
     query('playlist')
       .then(res => {
-        const playlist = res.data?.filter(d => generateKey(d.Title) === id)[0];
-        // 
+        const playlist = (res.data || res).filter(d => generateKey(d.Title) === id)[0];
+
         if (playlist) {
           const Keys = playlist.related.filter(f => !!f);
-          // 
+
           getTrackListByKeys(playlist, Keys)
-            .then(callback)
+            .then(response => {
+              console.log({ response });
+              callback(response)
+            })
         }
       });
   })
 }
 
-function compareTrackToLists(track) {
+const compareTrackToLists = (track) => {
   if (PLAYLIST_COLLECTION) {
     const playlists = PLAYLIST_COLLECTION
       .filter((list) => playListContainsTrack(track, list));
@@ -209,7 +185,7 @@ function compareTrackToLists(track) {
   return 0;
 }
 
-function playListContainsTrack(audioTrack, list) {
+const playListContainsTrack = (audioTrack, list) => {
   if (audioTrack?.Key) {
     const count = list.related.filter((f) =>
       stripExt(f) === stripExt(audioTrack.Key)

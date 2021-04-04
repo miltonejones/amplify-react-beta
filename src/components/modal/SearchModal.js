@@ -16,6 +16,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { AccordionActions, Avatar, List, ListItem, ListItemAvatar, ListItemText } from '@material-ui/core';
 import { useHistory } from "react-router-dom";
 import { playbackRequest$ } from '../../util/Events';
+import { sendRequestToPlayer } from '../audio/PlayerRequest';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -74,6 +75,7 @@ export default class SearchDialog extends React.Component {
     return (
 
       <Dialog
+        classes={{ root: 'flex-centered' }}
         open={isOpen}
         onClose={this.handleClose.bind(this)}
         aria-labelledby="alert-dialog-title"
@@ -120,7 +122,7 @@ function SimpleAccordion(props) {
 
     query('tune', item.Key).then(res => {
       const track = res.data;
-      playbackRequest$.next({ items: [track], track, index: 0 });
+      sendRequestToPlayer({ items: [track], track, index: 0 });
     });
   }
 
@@ -141,7 +143,7 @@ function SimpleAccordion(props) {
             </AccordionSummary>
             <AccordionDetails>
 
-              <List component="nav" aria-label="main mailbox folders">
+              <List dense component="nav" aria-label="main mailbox folders">
 
                 {items[key].items?.map(item => <ListItem key={key} onClick={handleListClick(key, item)} button>
                   <ListItemAvatar>

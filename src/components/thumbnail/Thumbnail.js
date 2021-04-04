@@ -23,7 +23,7 @@ export default function Thumbnail(props) {
   if (artist.selected) className.push('selected');
   className = className.join(' ');
   return <div className={className} onClick={() => go(address)}>
-    <Badge color="secondary" badgeContent={count}>
+    <Badge max={9999} color="secondary" badgeContent={count}>
       <img className="standard-button" src={image} alt={title} />
     </Badge>
     <Caption text={title} />

@@ -12,7 +12,7 @@ import useStyles from './styles/core-styles'
 import NavList from './components/NavList';
 import {
   BrowserRouter as Router,
-  Switch,
+  Switch as Choice,
   Route,
   useParams,
   Link
@@ -21,6 +21,7 @@ import ArtistList from './components/BasicList';
 import TrackListView from "./components/BasicView";
 import AudioPlayer from './components/audio/Player';
 import Underline from './components/underline/Underline';
+import { ToolTipButton } from './components/ToolTipButton';
 import { openMenuRequest } from "./util/Events";
 import { AppState } from "./util/State";
 import { TrackMenu } from './components/TrackMenu';
@@ -30,7 +31,12 @@ import NavPlayList from './components/NavPlayList';
 import SearchDialog from './components/modal/SearchModal';
 import { WaitIcon } from './components/WaitIcon';
 import Notifier from './components/Notifier';
-import { useMediaQuery } from '@material-ui/core';
+import { useMediaQuery, Switch, FormControlLabel } from '@material-ui/core';
+import { BuildLocalDb } from './data/BuildLocalDb';
+import DualProgressIndicator from './components/DualProgressIndicator';
+import TitleBar from './components/TitleBar';
+import { LocalApi, READ_MODE } from './data/LocalApi';
+import ConfirmDialog, { DialogConfig } from './components/modal/ConfirmDialog';
 
 function DisplayFindView(props) {
   const params = useParams();
@@ -50,23 +56,68 @@ function DisplayListView(props) {
   return (<TrackListView {...params} {...props} />);
 }
 
+function OfflineSwitch({ change, label, checked }) {
+  return (
+    <FormControlLabel
+      control={
+        <Switch
+          name="checkedB"
+          onChange={change}
+          color="secondary"
+          value={label}
+          checked={checked}
+        />
+      }
+      label={<span class="material-icons">
+        signal_cellular_nodata
+      </span>}
+    />
+  )
+}
+OfflineSwitch.defaultProps = {
+  title: 'Offline mode',
+  change: a => console.log(a)
+}
 
 function App() {
   const [open, setOpen] = React.useState(false);
   const [home, setHome] = React.useState(true);
   const [find, setFind] = React.useState({ open: false });
+  const [mode, setMode] = React.useState(READ_MODE.REMOTE);
   const [expanded, setExpanded] = React.useState(false);
+  const [ready, setReady] = React.useState(0);
   const [playing, setPlaying] = React.useState(AppState.PLAYING);
   const [snackMenuOpen, setMenu] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [light, setLight] = React.useState(false);
   const [editedTrack, setEditedTrack] = React.useState({});
+  const [dialogProps, setDialogProps] = React.useState({});
   const classes = useStyles();
   const matches = useMediaQuery('(max-width:600px)');
   const eq_width = matches ? 300 : 400;
+  const dialog = DialogConfig(setDialogProps);
+
 
   const handleSearchClick = () => {
     setSearchOpen(!searchOpen);
+  }
+
+  const doSwap = () => {
+    LocalApi.swap()
+    setMode(LocalApi.Mode);
+    setReady(LocalApi.Mode === READ_MODE.REMOTE)
+  }
+
+  const swap = async () => {
+    const count = await LocalApi.count();
+    const message = count > 0
+      ? 'You are turning offline mode ON. Your local database may not be up to date with online data. Do you want to continue?'
+      : 'You are turning offline mode ON. It will take a few minutes to build your music library. Do you want to continue?';
+    if (mode === READ_MODE.REMOTE) {
+      dialog(message, 'Enable offline mode?').then(yes => yes && doSwap());
+      return;
+    }
+    doSwap();
   }
 
   const handleDrawerOpen = () => {
@@ -94,11 +145,13 @@ function App() {
     const param = arg.target?.value;
     if (keyCode === 13) {
       setFind({ open: true, param });
+      setSearchOpen(!1);
     }
   }
 
   const handleSetHome = (arg) => {
     setHome(arg)
+    setOpen(false);
   }
 
   const setExpandState = () => {
@@ -110,14 +163,14 @@ function App() {
     setPlaying(playingNow);
   }
 
-  useEffect(() => {
 
+  useEffect(() => {
     const sub = openMenuRequest.subscribe(track => {
       setMenu(true);
       setEditedTrack(track);
     });
+    setMode(LocalApi.Mode);
     return () => {
-
       sub.unsubscribe();
     }
   });
@@ -144,8 +197,17 @@ function App() {
     </div>)
   };
 
+  const enabled = mode === READ_MODE.LOCAL;
+  const message = `${enabled ? 'signal_wifi_4_bar_lock' : 'signal_wifi_off'}`
+  if (!ready) {
+    return (
+      <BuildLocalDb complete={() => setReady(true)} />
+    )
+  }
+
   return (
     <div className={['App', light ? 'light' : '', home ? 'home' : ''].join(' ')}>
+      <ConfirmDialog {...dialogProps} />
       <Router>
 
         {/* toolbar element */}
@@ -168,25 +230,40 @@ function App() {
             {/* logo */}
             {!(matches && open) && (<Link to="/">
               <img className="toolbar-logo" alt={APP_NAME} src="http://ullify.com/assets/notify.png" />
-              <Underline innerText="Amplify!" />
+              <Underline innerText={APP_NAME} />
             </Link>)}
             {/* search */}
             {!matches && <InlineSearchElement />}
+            {matches && <div className={classes.grow} ></div>}
 
-            {matches ? (<div>
+            {matches ? (<div className="flex-centered">
+              <ToolTipButton title='Offline Mode' icon={message} click={() => swap()} />
+              {/* <OfflineSwitch checked={mode === READ_MODE.LOCAL} label={message} change={() => swap()} /> */}
               <IconButton
                 onClick={handleSearchClick}
                 edge="end"
-                color="inherit"
-              >
+                color="inherit">
                 <Icon>search</Icon>
               </IconButton>
             </div>) : ''}
 
-
+            <div className={classes.grow} ></div>
             <div className={classes.sectionDesktop}>
+              {/* <OfflineSwitch checked={mode === READ_MODE.LOCAL} label={message} change={() => swap()} /> */}
+              {/* <ToolTipButton title='Offline Mode' icon={message} click={() => swap()} /> */}
               <WaitIcon />
+
               <IconButton
+                onClick={() => swap()}
+                edge="end"
+                aria-label="account of current user"
+                aria-haspopup="true"
+                color="inherit"
+              >
+                <Icon>{message}</Icon>
+              </IconButton>
+
+              {/* <IconButton
                 onClick={handleLightClick}
                 edge="end"
                 aria-label="account of current user"
@@ -194,7 +271,7 @@ function App() {
                 color="inherit"
               >
                 <Icon>light_mode</Icon>
-              </IconButton>
+              </IconButton> */}
             </div>
           </Toolbar>
         </AppBar>
@@ -219,7 +296,8 @@ function App() {
           {!home && (<div className={[classes.search, "mobile-search-element", searchOpen ? 'open' : ''].join(' ')}>
             <InlineSearchElement />
           </div>)}
-          <Switch>
+          <Choice>
+            <Route path="/demo" children={<DualProgressIndicator />} />
             <Route path="/recent/:type" children={<DisplayListView setHome={handleSetHome} recent open={open} />} />
             <Route path="/find/:type/:param" children={<DisplayFindView setHome={handleSetHome} open={open} />} />
             <Route path="/list/:type" children={<DisplayThumbView setHome={handleSetHome} open={open} />} />
@@ -227,7 +305,7 @@ function App() {
             <Route path="/show/:type" children={<DisplayListView setHome={handleSetHome} open={open} />} />
             <Route path="/main/:type" children={<DashPage mobile={matches} setHome={handleSetHome} open={open} />} />
             <Route path="/" children={<DashPage mobile={matches} setHome={handleSetHome} open={open} />} />
-          </Switch>
+          </Choice>
         </div>
 
         {/* bottom sheet */}
@@ -249,6 +327,7 @@ function App() {
         }}  >
         <AudioPlayer mobile={matches} expanded={expanded} expand={setExpandState} eq_width={eq_width} notify={setPlayState} />
       </Drawer>
+      <TitleBar />
     </div >
   );
 }

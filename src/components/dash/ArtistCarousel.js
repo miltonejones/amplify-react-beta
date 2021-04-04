@@ -3,23 +3,24 @@ import OwlCarousel from 'react-owl-carousel';
 import 'owl.carousel/dist/assets/owl.carousel.css';
 import 'owl.carousel/dist/assets/owl.theme.default.css';
 import './owl.css';
-import { playbackRequest$ } from '../../util/Events';
-import { query } from '../../AmplifyData';
 import { sortObjects } from '../../util/State';
 import { LinearProgress, Typography } from '@material-ui/core';
 import { HtmlTooltip } from '../HtmlTooltip';
+import { sendRequestToPlayer } from '../audio/PlayerRequest';
+import { LocalApi } from '../../data/LocalApi';
 
 
 const downloadCollection = (type, id) => () => {
-  query(type, id).then(res => {
-    const data = res.data;
+  LocalApi.query(`${type}/${id}`)
+    .then(res => {
+      const data = res.data;
 
-    const items = sortObjects(data.related, type);
-    const index = 0;
-    const track = items[index];
+      const items = sortObjects(data.related, type);
+      const index = 0;
+      const track = items[index];
 
-    playbackRequest$.next({ items, track, index });
-  })
+      sendRequestToPlayer({ items, track, index });
+    })
 }
 
 

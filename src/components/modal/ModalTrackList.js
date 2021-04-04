@@ -29,8 +29,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Pagination({ startPage, pageSize, collection, selection, click }) {
-  const descText = `${startPage + 1} to ${Math.min(startPage + pageSize, collection.length)} of  ${collection.length}`;
-  const last = (startPage + pageSize) >= collection.length;
+  const descText = `${startPage + 1} to ${Math.min(startPage + pageSize, collection?.length)} of  ${collection?.length}`;
+  const last = (startPage + pageSize) >= collection?.length;
   const target = collection?.indexOf(selection);
   const diff = Math.floor((target - startPage) / pageSize);
 
@@ -51,7 +51,9 @@ export default function ModalTrackList({ tracks, select, page, selectionModel, m
   const [pageNum, setPageNum] = React.useState(1);
   const startPage = ((pageNum - 1) * pageSize);
   const listItems = tracks?.slice(startPage, startPage + pageSize);
-  const selectedTrack = tracks.filter(t => t.ID === selectionModel?.[0])[0]
+  const selectedTrack = tracks?.filter(t => t.ID === selectionModel?.[0])[0]
+
+  console.log({ tracks, select, page, selectionModel, menuClick, pageSize })
 
   const handleNext = (index) => {
     setPageNum(pageNum + index)
@@ -106,4 +108,11 @@ export default function ModalTrackList({ tracks, select, page, selectionModel, m
 
     </div>
   );
+}
+ModalTrackList.defaultProps = {
+  page: 1,
+  selectionModel: [],
+  pageSize: 10,
+  menuClick: console.log,
+  select: console.log
 }

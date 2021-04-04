@@ -58,7 +58,7 @@ export default function PlaylistAddDialog(props) {
     <div className={css}>
       <span onClick={handleClickOpen}>
         {
-          component || <Badge color="secondary" badgeContent={count}>
+          component || <Badge max={9999} color="secondary" badgeContent={count}>
             <Icon>playlist_add</Icon>
           </Badge>
         }

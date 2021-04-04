@@ -1,7 +1,7 @@
 import React from 'react';
-import { getPlaylist, query } from '../../AmplifyData';
-import { playbackRequest$ } from '../../util/Events';
+import { LocalApi } from '../../data/LocalApi';
 import { generateKey, randomize } from '../../util/State';
+import { sendRequestToPlayer } from '../audio/PlayerRequest';
 import './banner.css';
 
 export default class PlaylistBanners extends React.Component {
@@ -17,10 +17,10 @@ export default class PlaylistBanners extends React.Component {
   }
 
   getPlaylist(data) {
-    return () => getPlaylist(data).then(items => {
+    return () => LocalApi.getPlaylist(data).then(items => {
       const index = 0;
       const track = items[index];
-      playbackRequest$.next({ items, track, index });
+      sendRequestToPlayer({ items, track, index });
     })
   }
 
@@ -28,9 +28,10 @@ export default class PlaylistBanners extends React.Component {
   }
   loadComponentList() {
     const { mobile } = this.props;
-    query('playlist')
+    LocalApi.get('playlist')
       .then(res => {
-        const objects = randomize(res.data.filter(f => !!f.image)).slice(0, mobile ? 3 : 6);
+        console.log({ res })
+        const objects = randomize((res.data || res)?.filter(f => !!f.image)).slice(0, mobile ? 3 : 6);
         objects.map(f => f.listKey = generateKey(f.Title));
         this.setState({ objects });
       });

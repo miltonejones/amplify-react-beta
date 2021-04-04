@@ -40,7 +40,8 @@ export default class BatchEditDialog extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      artists: []
+      artists: [],
+      page: 1
     };
     this.assignTrack = this.assignTrack.bind(this);
     this.saveTrack = this.saveTrack.bind(this);
@@ -148,6 +149,8 @@ export default class BatchEditDialog extends React.Component {
   render() {
     const { isOpen, tracks } = this.props;
     const { track, suggested, itunes } = this.state;
+
+
     return (
 
       <Dialog

@@ -1,5 +1,8 @@
 import { Subject } from 'rxjs';
 
+const AudioContext = window.AudioContext // Default
+  || window.webkitAudioContext;// Safari a 
+
 class AudioAnalyser {
   eqOutput$ = new Subject();
   context = new AudioContext();

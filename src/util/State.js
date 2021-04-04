@@ -1,3 +1,5 @@
+import { curateDisc } from "./CurateDisc";
+
 const AppState = {
   LOADED: false,
   PLAYING: false,
@@ -5,9 +7,10 @@ const AppState = {
   TRACK: {},
   LOCALE: []
 };
-
+const contains = (a, b) => a?.toLowerCase().indexOf(b?.toLowerCase()) > -1
 export {
-  AppState
+  AppState,
+  contains
 }
 
 
@@ -26,10 +29,11 @@ export function randomize(collection) {
 }
 
 export function sortObjects(items, type) {
-  // 
   const sorter = ListItemSorts[type];
   const field = !sorter ? 'trackNumber' : sorter.replace('^', '');
-  const objects = items?.sort((a, b) => sorter?.indexOf('^') > 0 ? (b[field] - a[field]) : (a[field] - b[field]));
+  const objects = type === 'album'
+    ? curateDisc(items, sorter?.indexOf('^') > 0 ? 1 : -1)
+    : items?.sort((a, b) => sorter?.indexOf('^') > 0 ? (b[field] - a[field]) : (a[field] - b[field]));
   objects.map(obj => obj.id = obj.ID);
   return objects;
 }

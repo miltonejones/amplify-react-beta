@@ -7,8 +7,9 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles } from '@material-ui/core/styles';
 import { Avatar, Icon, ListItemAvatar } from '@material-ui/core';
 import { query } from '../../AmplifyData';
-import { playbackRequest$ } from '../../util/Events';
 import { sortObjects } from '../../util/State';
+import { sendRequestToPlayer } from '../audio/PlayerRequest';
+import { LocalApi } from '../../data/LocalApi';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,15 +40,16 @@ export default function ArtistVertical(props) {
   const label = objects?.label || '';
 
   const loadVertical = (id) => () => {
-    query(type, id).then(res => {
-      const data = res.data;
+    LocalApi.query(`${type}/${id}`)
+      .then(res => {
+        const data = res.data;
+        console.log({ data })
+        const items = sortObjects(data.related, type);
+        const index = 0;
+        const track = items[index];
 
-      const items = sortObjects(data.related, type);
-      const index = 0;
-      const track = items[index];
-
-      playbackRequest$.next({ items, track, index });
-    })
+        sendRequestToPlayer({ items, track, index });
+      })
   }
   // 
   return (

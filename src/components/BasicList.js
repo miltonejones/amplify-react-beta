@@ -7,6 +7,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { ThumbViewSorters } from './Sorters'
 import { SortMenu } from './SortMenu';
 import { Icon, IconButton } from '@material-ui/core';
+import { LocalApi } from '../data/LocalApi';
 
 const is = (sorter, object) => {
   return object[sorter.Field]?.toString().toLowerCase();
@@ -101,7 +102,7 @@ export default class ArtistList extends React.Component {
     const sorter = sorters.filter(s => s.isActive)[0];
     if (sorter) {
       const first = collection[0];
-      if (sorter.Field in first) {
+      if (first && sorter.Field in first) {
         const apply = (a, b) => sorter.isASC * (is(sorter, a) > is(sorter, b) ? -1 : 1)
         const out = collection.sort(apply);
         return out;
@@ -109,7 +110,21 @@ export default class ArtistList extends React.Component {
       alert(`${sorter.Field} not found! Check the console`);
 
     }
-    
+
+  }
+
+  getComponentData() {
+    const localTables = {
+      artist: 'localDbArtists',
+      album: 'localDbAlbums',
+      genre: 'localDbGenres'
+    }
+    return LocalApi.get(this.getType());
+    // const localTable = localTables[this.getType()];
+    // if (localTable) {
+    //   return LocalApi.get(this.getType());
+    // }
+    // return query(this.getType())
   }
 
   loadComponentList() {
@@ -117,15 +132,17 @@ export default class ArtistList extends React.Component {
       this.searchComponentList();
       return;
     }
-    query(this.getType())
+    this.getComponentData()
       .then(res => {
-        let artists = res.data;
+        console.log({ res })
+        let artists = res.data || res;
         artists.map(f => f.listKey = generateKey(f.Title));
         const crumb = createCrumb(this.props.type);
         const sorter = ThumbViewSorters[this.getType()];
         artists = this.sortBy(sorter, artists);
         const items = artists.slice(0, 100);
         this.cacheType = this.getType();
+        this.props.setHome(false);
         this.setState({
           ...this.state,
           items,
@@ -136,7 +153,7 @@ export default class ArtistList extends React.Component {
           selectedCount: 0,
           href: this.props.type
         });
-        
+
       });
   }
 
@@ -192,7 +209,14 @@ export default class ArtistList extends React.Component {
             hasMore
 
           >
-            {items.map((artist, k) => <Thumbnail key={k + href} select={a => this.selectItem(a)} editing={editing} href={href} type={this.cacheType} artist={artist} />)}
+            {items.map((artist, k) => (
+              <Thumbnail
+                key={k + href}
+                select={a => this.selectItem(a)}
+                editing={editing}
+                href={href}
+                type={this.cacheType}
+                artist={artist} />))}
           </InfiniteScroll>
 
         </div>

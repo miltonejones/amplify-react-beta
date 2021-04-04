@@ -198,7 +198,16 @@ img.toolbar-logo {
   color: #333;
   margin: 4px 0 0 0;
 }
-
+.build-status {
+  position: absolute;
+  top: 72px;
+  z-index: 200;
+  left: 10px;
+  min-width: 180px;
+  padding: 0 6px;
+  background-color: whitesmoke;
+  box-shadow: 1px 1px 2px #444;
+}
 .thumbnail-view.collapsed {
   border: solid 1px #999;
   border-radius: 5px;

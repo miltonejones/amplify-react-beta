@@ -50,13 +50,17 @@ export default class ProgressLabel extends React.Component {
   }
 
   animate$(element, keyframes, iterations, duration) {
-    if (this.Animation) {
-      this.Animation.cancel();
+    try {
+      if (this.Animation) {
+        this.Animation.cancel();
+      }
+      this.Animation = element.animate(keyframes, {
+        duration: duration,
+        iterations: iterations
+      });
+    } catch (e) {
+      console.log(e)
     }
-    this.Animation = element.animate(keyframes, {
-      duration: duration,
-      iterations: iterations
-    });
   }
 
   animate() {

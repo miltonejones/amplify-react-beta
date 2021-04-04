@@ -3,16 +3,16 @@ import { DataGrid } from "@material-ui/data-grid";
 import { openMenuRequest$ } from "../util/Events";
 import ModalTrackList from "./modal/ModalTrackList";
 
-function ResponsiveDataGrid({ click, change, objects, checkboxes, select, cols, selectionModel, pageSize }) {
+function ResponsiveDataGrid({ dupes, click, change, objects, checkboxes, select, cols, selectionModel, pageSize }) {
   const matches = useMediaQuery('(max-width:600px)');
-
+  const collect = dupes ? objects : objects?.filter(p => !p.duplicate)
   if (matches) {
     return (
       <ModalTrackList
         page
         pageSize={pageSize}
         menuClick={(a) => openMenuRequest$.next(a)}
-        tracks={objects}
+        tracks={collect}
         selectionModel={selectionModel}
         select={select} />
     )
@@ -22,7 +22,7 @@ function ResponsiveDataGrid({ click, change, objects, checkboxes, select, cols, 
       onCellClick={click}
       selectionModel={selectionModel}
       onSelectionModelChange={change}
-      rows={objects}
+      rows={collect}
       checkboxSelection={checkboxes}
       columns={cols}
       pageSize={pageSize} />

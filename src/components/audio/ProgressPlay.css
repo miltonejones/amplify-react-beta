@@ -1,0 +1,10 @@
+.progress-play-container {
+  position: relative;
+}
+
+.progress-play-container .progress-play-button,
+.progress-play-container .progress-play-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
