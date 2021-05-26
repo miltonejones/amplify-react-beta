@@ -16,18 +16,22 @@ class SongPersistService$ {
     return setting;
   }
   set(setting) {
-    localStorage['recentPlayed'] = JSON.stringify(setting);
+    try {
+      localStorage["recentPlayed"] = JSON.stringify(setting);
+    } catch (e) {
+      console.log("Unable to save", { setting });
+    }
   }
   clear() {
-    localStorage['recentPlayed'] = [];
+    localStorage["recentPlayed"] = [];
   }
   get() {
     try {
-      return JSON.parse(localStorage['recentPlayed'] || '[]');
-    } catch (e) { return []; }
+      return JSON.parse(localStorage["recentPlayed"] || "[]");
+    } catch (e) {
+      return [];
+    }
   }
 }
 const SongPersistService = new SongPersistService$();
-export {
-  SongPersistService
-}
+export { SongPersistService };

@@ -1,28 +1,32 @@
-
-import React from 'react';
+import React from "react";
 import { openMenuRequest$, playBegin, playEnd } from "../util/Events";
-import { AppState, mmss, randomize, sortObjects } from '../util/State';
-import Icon from '@material-ui/core/Icon';
-import { compareTrackToLists, dataStateChange, getPlaylist, search } from '../AmplifyData';
-import { ARTIST_API_ADDRESS, DEFAULT_HREF } from '../Constants';
-import { createCrumb, PageBreadcrumbs } from './Breadcrumb';
-import PlaylistAddDialog from './modal/PlaylistAddModal';
-import { IconButton } from '@material-ui/core';
-import BatchEditDialog from './modal/BatchEditModal';
-import { SongPersistService } from './audio/Persist';
-import { TextOrLink } from './TextOrLink';
-import { HtmlTooltip } from './HtmlTooltip';
-import DownloadDialog from './modal/ImportModal';
-import { DesktopOnly } from '../util/MediaQueries';
-import { TrackTooltip } from './TrackToolTip';
-import { ResponsiveDataGrid } from './ResponsiveDataGrid';
-import { sendRequestToPlayer } from './audio/PlayerRequest';
-import { LocalApi } from '../data/LocalApi';
-import { useDraggable } from '@dnd-kit/core';
+import { AppState, mmss, randomize, sortObjects } from "../util/State";
+import Icon from "@material-ui/core/Icon";
+import {
+  compareTrackToLists,
+  dataStateChange,
+  getPlaylist,
+  search,
+} from "../AmplifyData";
+import { ARTIST_API_ADDRESS, DEFAULT_HREF } from "../Constants";
+import { createCrumb, PageBreadcrumbs } from "./Breadcrumb";
+import PlaylistAddDialog from "./modal/PlaylistAddModal";
+import { IconButton } from "@material-ui/core";
+import BatchEditDialog from "./modal/BatchEditModal";
+import { SongPersistService } from "./audio/Persist";
+import { TextOrLink } from "./TextOrLink";
+import { HtmlTooltip } from "./HtmlTooltip";
+import DownloadDialog from "./modal/ImportModal";
+import { DesktopOnly } from "../util/MediaQueries";
+import { TrackTooltip } from "./TrackToolTip";
+import { ResponsiveDataGrid } from "./ResponsiveDataGrid";
+import { sendRequestToPlayer } from "./audio/PlayerRequest";
+import { LocalApi } from "../data/LocalApi";
+import { useDraggable } from "@dnd-kit/core";
 
 export default class TrackListView extends React.Component {
-  cacheType = '';
-  findType = '';
+  cacheType = "";
+  findType = "";
   subscriptions = [];
   constructor(props) {
     super(props);
@@ -30,14 +34,15 @@ export default class TrackListView extends React.Component {
       objects: [],
       checkboxes: false,
       ready: true,
-      activate: AppState.PLAYING
+      activate: AppState.PLAYING,
+      selectionModel: [],
     };
     this.sendPlayRequest = this.sendPlayRequest.bind(this);
     this.handleCellClick = this.handleCellClick.bind(this);
   }
 
   getPlaylist() {
-    LocalApi.getPlaylist(this.props.id).then(data => {
+    LocalApi.getPlaylist(this.props.id).then((data) => {
       this.setObjects(data, this.props.id);
     });
   }
@@ -56,32 +61,34 @@ export default class TrackListView extends React.Component {
 
   getUriLocation() {
     const type = this.getType();
-    return type === 'library'
+    return type === "library"
       ? `${ARTIST_API_ADDRESS}tune`
       : `${ARTIST_API_ADDRESS}${type}?id=${this.props.id}`;
   }
   searchComponentList() {
-    search(this.props.param, this.props.type).then(res => {
-      const objects = res.data.items.map(item => item.data);
-      objects.map(o => o.id = o.ID);
+    search(this.props.param, this.props.type).then((res) => {
+      const objects = res.data.items.map((item) => item.data);
+      objects.map((o) => (o.id = o.ID));
       this.setState({
         crumb: {
-          label: res.data.label
-        }, objects
+          label: res.data.label,
+        },
+        objects,
       });
     });
   }
   recentComponentList() {
     const objects = SongPersistService.get();
-    objects.map(o => o.id = o.ID);
+    objects.map((o) => (o.id = o.ID));
     this.setState({
       crumb: {
-        label: 'Recently Played'
-      }, objects
+        label: "Recently Played",
+      },
+      objects,
     });
   }
   localDbData() {
-    return LocalApi.get('tune');
+    return LocalApi.get("tune");
   }
   loadComponentList() {
     const { param, recent, id } = this.props;
@@ -94,18 +101,18 @@ export default class TrackListView extends React.Component {
       return;
     }
     const type = this.getType();
-    if (type === 'playlist') {
+    if (type === "playlist") {
       return this.getPlaylist();
     }
-    const promise = type === 'library'
-      ? this.localDbData() // query('tune')
-      : LocalApi.query(`${type}/${id}`); //query(type, id);
-    promise
-      .then(res => {
-        const datum = res.data || res;
+    const promise =
+      type === "library"
+        ? this.localDbData() // query('tune')
+        : LocalApi.query(`${type}/${id}`); //query(type, id);
+    promise.then((res) => {
+      const datum = res.data || res;
 
-        this.setObjects(datum.related || datum, datum.Name || datum.Title || id);
-      });
+      this.setObjects(datum.related || datum, datum.Name || datum.Title || id);
+    });
   }
   componentDidUpdate() {
     const address = this.getUriLocation();
@@ -122,8 +129,10 @@ export default class TrackListView extends React.Component {
     this.loadComponentList();
     this.props.setHome(false);
     this.subscriptions.push(
-      dataStateChange.subscribe(ready => this.setState({ ...this.state, ready })),
-      playBegin.subscribe(opts => {
+      dataStateChange.subscribe((ready) =>
+        this.setState({ ...this.state, ready })
+      ),
+      playBegin.subscribe((opts) => {
         const { track } = opts;
         this.selectTrack(track);
       }),
@@ -133,26 +142,24 @@ export default class TrackListView extends React.Component {
     );
   }
   componentWillUnmount() {
-    this.subscriptions.map(s => s.unsubscribe());
+    this.subscriptions.map((s) => s.unsubscribe());
   }
   getType() {
-    return this.props.type.replace('.html', '').toLowerCase();
+    return this.props.type.replace(".html", "").toLowerCase();
   }
   shuffle() {
     const { objects, crumb } = this.state;
     const items = randomize(objects);
     const track = items[0];
     const index = items.indexOf(track);
-    const source = this.props.type + '/' + this.props.id + '/shuffle';
+    const source = this.props.type + "/" + this.props.id + "/shuffle";
     // sendRequestToPlayer();
-    sendRequestToPlayer({ items, track, index, source, crumb })
+    sendRequestToPlayer({ items, track, index, source, crumb });
     this.activate();
   }
   handleCellClick(params) {
-
-
     // if (Analyser.context.state !== 'running') {
-    //   const k = window.confirm(`The equalizer needs permission to access your system. 
+    //   const k = window.confirm(`The equalizer needs permission to access your system.
     //   Click here to grant permission.`);
     //   if (k) {
     //     Analyser.context.resume();
@@ -160,11 +167,11 @@ export default class TrackListView extends React.Component {
     //   return;
     // }
 
-    if (params?.field === 'menu') {
+    if (params?.field === "menu") {
       openMenuRequest$.next(params.row);
       return;
     }
-    if (params?.field === 'Title') {
+    if (params?.field === "Title") {
       this.sendPlayRequest(params?.row);
     }
   }
@@ -172,7 +179,7 @@ export default class TrackListView extends React.Component {
     const { objects, crumb } = this.state;
     const items = objects;
     const index = items.indexOf(track);
-    const source = this.props.type + '/' + this.props.id;
+    const source = this.props.type + "/" + this.props.id;
     sendRequestToPlayer({ items, track, index, source, crumb });
 
     this.activate();
@@ -181,15 +188,18 @@ export default class TrackListView extends React.Component {
     const activated = true;
     this.setState({
       ...this.state,
-      activated
-    })
+      activated,
+    });
   }
   setSelectedTracks(e) {
     const { objects } = this.state;
     const { selectionModel } = e;
-    const selectedTracks = selectionModel.map(f => objects.filter(o => f && o.ID.toString() === f.toString())[0])
-      .filter(i => !!i);
-    console.log({ selectedTracks })
+    const selectedTracks = selectionModel
+      .map(
+        (f) => objects.filter((o) => f && o.ID.toString() === f.toString())[0]
+      )
+      .filter((i) => !!i);
+    console.log({ selectedTracks });
     this.setState({ selectedTracks });
   }
   selectTrack(track) {
@@ -201,21 +211,48 @@ export default class TrackListView extends React.Component {
       open: false,
       selectedTracks: null,
       selectionModel: [],
-      checkboxes: false
+      checkboxes: false,
     });
   }
 
+  download(track) {
+    const { selectionModel } = this.state;
+    selectionModel.push(track.ID);
+    this.setState({ selectionModel });
+    return LocalApi.cache(track);
+  }
+
+  cache() {
+    const { objects } = this.state;
+    const tracks = objects?.filter((f) => !f.cache);
+    const go = () => {
+      if (!tracks.length) {
+        return this.loadComponentList();
+      }
+      this.download(tracks.shift()).then(go);
+    };
+    go();
+  }
+
   render() {
-    const { objects, crumb, checkboxes, open, selectedTracks, selectionModel, ready, dupes } = this.state;
+    const {
+      objects,
+      crumb,
+      checkboxes,
+      open,
+      selectedTracks,
+      selectionModel,
+      ready,
+      dupes,
+    } = this.state;
     const { type, id } = this.props;
     const skip = OMITTED_COLUMNS[this.getType()];
-    const cols = !skip
-      ? columns
-      : columns.filter(col => col.field !== skip);
-    const className = ['list-view'];
-    if (this.props.open) className.push('open');
-    if (AppState.PLAYING) className.push('collapsed');
-    const duplicatesPresent = !!objects?.filter(f => f.duplicate).length
+    const cols = !skip ? columns : columns.filter((col) => col.field !== skip);
+    const className = ["list-view"];
+    if (this.props.open) className.push("open");
+    if (AppState.PLAYING) className.push("collapsed");
+    const duplicatesPresent = !!objects?.filter((f) => f.duplicate).length;
+    const allTracksCached = !objects?.filter((f) => !f.cache).length;
     return (
       <div>
         <div className="upper-menu">
@@ -224,26 +261,74 @@ export default class TrackListView extends React.Component {
           </div>
           <div className="upper-menu-right flex-centered">
             <ShuffleButton type={type} id={id} shuffle={() => this.shuffle()} />
-            <IconButton classes={{ root: ['icon-button-no-padding', !ready ? 'spinning-icon' : ''].join(' ') }} onClick={() => this.loadComponentList()}>
+
+            <IconButton
+              classes={{
+                root: [
+                  "icon-button-no-padding",
+                  !ready ? "spinning-icon" : "",
+                ].join(" "),
+              }}
+              onClick={() => this.loadComponentList()}
+            >
               <Icon>refresh</Icon>
             </IconButton>
-            <DesktopOnly content={
-              <div>
-                <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => this.setState({ ...this.state, checkboxes: !checkboxes })}>
-                  <Icon>{checkboxes ? 'check_circle' : 'check_circle_outline'}</Icon>
-                </IconButton>
-                {duplicatesPresent && (<IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => this.setState({ ...this.state, dupes: !dupes })}>
-                  <Icon>{dupes ? 'file_copy' : 'content_copy'}</Icon>
-                </IconButton>)}
-              </div>
-            } />
-            {checkboxes && !!selectedTracks?.length && (<IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => this.setState({ ...this.state, open: !0 })}>
-              <Icon>edit</Icon>
-            </IconButton>)}
+
+            <DesktopOnly
+              content={
+                <div>
+                  <IconButton
+                    classes={{ root: "icon-button-no-padding" }}
+                    onClick={() =>
+                      this.setState({ ...this.state, checkboxes: !checkboxes })
+                    }
+                  >
+                    <Icon>
+                      {checkboxes ? "check_circle" : "check_circle_outline"}
+                    </Icon>
+                  </IconButton>
+
+                  <IconButton
+                    classes={{ root: "icon-button-no-padding" }}
+                    onClick={() => this.cache()}
+                  >
+                    <Icon>
+                      {allTracksCached
+                        ? "file_download_done"
+                        : "download_for_offline"}
+                    </Icon>
+                  </IconButton>
+
+                  {duplicatesPresent && (
+                    <IconButton
+                      classes={{ root: "icon-button-no-padding" }}
+                      onClick={() =>
+                        this.setState({ ...this.state, dupes: !dupes })
+                      }
+                    >
+                      <Icon>{dupes ? "file_copy" : "content_copy"}</Icon>
+                    </IconButton>
+                  )}
+                </div>
+              }
+            />
+            {checkboxes && !!selectedTracks?.length && (
+              <IconButton
+                classes={{ root: "icon-button-no-padding" }}
+                onClick={() => this.setState({ ...this.state, open: !0 })}
+              >
+                <Icon>edit</Icon>
+              </IconButton>
+            )}
           </div>
         </div>
-        <BatchEditDialog refresh={() => this.loadComponentList()} close={() => this.clearSelectedTracks()} tracks={selectedTracks} isOpen={open} />
-        <div className={className.join(' ')}>
+        <BatchEditDialog
+          refresh={() => this.loadComponentList()}
+          close={() => this.clearSelectedTracks()}
+          tracks={selectedTracks}
+          isOpen={open}
+        />
+        <div className={className.join(" ")}>
           <ResponsiveDataGrid
             click={this.handleCellClick}
             selectionModel={selectionModel}
@@ -258,19 +343,19 @@ export default class TrackListView extends React.Component {
         </div>
         <DownloadDialog refresh={() => this.loadComponentList()} />
       </div>
-    )
+    );
   }
 }
 
-
 function Draggable(props) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: 'draggable',
+    id: "draggable",
   });
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  } : undefined;
-
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
 
   return (
     <button ref={setNodeRef} style={style} {...listeners} {...attributes}>
@@ -280,88 +365,128 @@ function Draggable(props) {
 }
 
 const ShuffleButton = ({ type, id, shuffle }) => {
-  const source = type + '/' + id + '/shuffle';
-  const icon = source === AppState.SOURCE ? 'shuffle_on' : 'shuffle'
+  const source = type + "/" + id + "/shuffle";
+  const icon = source === AppState.SOURCE ? "shuffle_on" : "shuffle";
   return (
-    <IconButton classes={{ root: 'icon-button-no-padding' }} onClick={() => shuffle()}>
+    <IconButton
+      classes={{ root: "icon-button-no-padding" }}
+      onClick={() => shuffle()}
+    >
       <Icon>{icon}</Icon>
-    </IconButton>)
-}
+    </IconButton>
+  );
+};
 
 const TitleCell = ({ track }) => {
   const { label } = track;
   const heart = compareTrackToLists(track);
-  const value = track.Title?.replace(/\.[^.]{3}$/, '');
+  const cache = !!track.cache?.length ? <Icon>file_download_done</Icon> : <i />;
+  const value = track.Title?.replace(/\.[^.]{3}$/, "");
   if (label) {
-    return <b>{track.Title}</b>
+    return <b>{track.Title}</b>;
   }
   return (
-    <HtmlTooltip
-      title={<TrackTooltip track={track} />}>
-      <a href={DEFAULT_HREF}>{heart ? <Icon style={{ color: 'red' }}>favorite</Icon> : <i />}{value}</a>
+    <HtmlTooltip title={<TrackTooltip track={track} />}>
+      <a href={DEFAULT_HREF}>
+        {heart ? <Icon style={{ color: "red" }}>favorite</Icon> : <i />}
+        {cache}
+        {value}
+      </a>
     </HtmlTooltip>
   );
-}
+};
 
 const columns = [
-  { field: 'trackNumber', headerName: '#', width: 24 },
+  { field: "trackNumber", headerName: "#", width: 24 },
   {
-    field: 'Title', headerName: 'Title', width: 324,
+    field: "Title",
+    headerName: "Title",
+    width: 324,
     renderCell: (params) => {
-      return <TitleCell track={params.row} />
-    }
+      return <TitleCell track={params.row} />;
+    },
   },
   {
-    field: 'artistName', headerName: 'Artist', width: 264,
-    renderCell: params => {
-      return <TextOrLink path="/show/Artist.html/" id={params.row.artistFk} text={params.value} />
-    }
+    field: "artistName",
+    headerName: "Artist",
+    width: 264,
+    renderCell: (params) => {
+      return (
+        <TextOrLink
+          path="/show/Artist.html/"
+          id={params.row.artistFk}
+          text={params.value}
+        />
+      );
+    },
   },
   {
-    field: 'albumName', headerName: 'Album', width: 230,
-    renderCell: params => {
-      return <TextOrLink path="/show/Album.html/" id={params.row.albumFk} text={params.value} />
-    }
+    field: "albumName",
+    headerName: "Album",
+    width: 230,
+    renderCell: (params) => {
+      return (
+        <TextOrLink
+          path="/show/Album.html/"
+          id={params.row.albumFk}
+          text={params.value}
+        />
+      );
+    },
   },
   {
-    field: 'Genre', headerName: 'Genre', width: 124,
-    renderCell: params => {
-      return <TextOrLink path="/show/Genre.html/" id={params.row.genreKey} text={params.value} />
-    }
+    field: "Genre",
+    headerName: "Genre",
+    width: 124,
+    renderCell: (params) => {
+      return (
+        <TextOrLink
+          path="/show/Genre.html/"
+          id={params.row.genreKey}
+          text={params.value}
+        />
+      );
+    },
   },
   {
-    field: 'computedTime', headerName: 'Time', disableColumnMenu: true, width: 100,
-    valueGetter: (params) => mmss(params.row.trackTime, 1000)
+    field: "computedTime",
+    headerName: "Time",
+    disableColumnMenu: true,
+    width: 100,
+    valueGetter: (params) => mmss(params.row.trackTime, 1000),
   },
 
   {
-    field: 'menu', headerName: ' ', width: 56, disableColumnMenu: true,
+    field: "menu",
+    headerName: " ",
+    width: 56,
+    disableColumnMenu: true,
     renderCell: (params) => {
       return (
         <div>
           <Icon>more_vert</Icon>
         </div>
       );
-    }
+    },
   },
 
   {
-    field: 'ID', headerName: ' ', width: 56, disableColumnMenu: true,
+    field: "ID",
+    headerName: " ",
+    width: 56,
+    disableColumnMenu: true,
     renderCell: (params) => {
       return (
         <div>
           <PlaylistAddDialog count={0} track={params.row} />
         </div>
       );
-    }
-  }
-
+    },
+  },
 ];
 
-
 const OMITTED_COLUMNS = {
-  artist: 'artistName',
-  album: 'albumName',
-  genre: 'Genre'
-}
-
+  artist: "artistName",
+  album: "albumName",
+  genre: "Genre",
+};
